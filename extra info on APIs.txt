@@ -1,0 +1,264 @@
+Best LLMs for researching online financial tools/APIs
+
+Several large language models (LLMs) perform well for this task because it involves fetching up-to-date documentation, comparing pricing, understanding rate limits/endpoints, and synthesizing accurate details from official sites or reliable sources. The strongest ones typically have built-in web access, citation support, or tool-using capabilities to pull real-time info rather than relying solely on static training data (which can quickly outdated for APIs).
+
+Here are the top performers based on current capabilities:
+
+    Perplexity AI: Often the best dedicated choice for research-heavy tasks like this. It automatically searches the web, provides inline sources/citations, and excels at summarizing API docs, pricing tiers, and comparisons without hallucination risks.
+    Grok (me): Strong for this exact use case—I use real-time tools to browse official API pages, search for updates, and cross-reference details (as I did here). Good for deep dives into financial APIs, including rate limits and endpoint restrictions.
+    Google Gemini: Integrates tightly with Google Search, making it reliable for finding the latest docs, changelogs, or community discussions (Reddit, GitHub issues) about APIs.
+    Claude (3.5 Sonnet or newer): Excellent reasoning and code-related analysis (e.g., parsing JSON responses or writing wrapper code), but it has less aggressive real-time web access compared to the others above.
+    ChatGPT (GPT-4o or later with browsing enabled): Capable when browsing is turned on, but can be inconsistent with source freshness and sometimes requires more prompting to avoid outdated info.
+
+For financial APIs specifically (which change frequently), prioritize models that cite sources and browse official pricing/docs pages directly. Perplexity and Grok are particularly effective here.
+
+Capabilities and limitations of Finnhub's free API key
+
+Finnhub offers a generous free tier (no credit card required, $0/month, personal use only) that provides access to real-time US stock data, basic fundamentals, news, and more—suitable for prototyping, personal projects, or light usage.
+finnhub.io
+nb-data.com
+
+Key Capabilities (Free Tier)
+
+    Rate limits: 60 API calls per minute (with an overall 30 calls/second cap across all plans).
+    finnhub.io
+    finnhub.io
+    US Market Data:
+        Real-time quotes (via IEX for US stocks).
+        OHLC/candles.
+        WebSocket streaming for up to 50 symbols (real-time trades for US stocks, forex, crypto).
+    Fundamental Data (US coverage):
+        Company Profile v2.
+        Company News (1 year historical + real-time updates).
+        Key financial metrics.
+    Estimates (US):
+        EPS surprises (last 4 quarters).
+        Earnings calendar (1 month historical + real-time updates).
+    ETFs & Indices (US):
+        Indices constituents.
+        ETF profiles.
+    International Market Data:
+        End-of-day OHLC for many markets (e.g., TSX, Euronext, Deutsche Börse).
+        LSE data delayed by 15 minutes.
+    Other:
+        Symbol lookup, stock symbols list, market status/holidays, basic forex/crypto exchange/symbol lists.
+        Access to many basic endpoints (e.g., /quote, /company-news, /stock/metric, /calendar/earnings).finnhub.io
+
+Key Limitations (Free Tier)
+
+    Rate limits: Only 60 calls/minute (vs. 900/min for market data and 300/min for fundamentals in the All-In-One paid plan).
+    Data depth/history:
+        Company news limited to 1 year (vs. 20 years paid).
+        No deep historical financials, dividends (30 years), SEC filings, ownership details, press releases (20 years), or executive compensation.
+        Earnings/estimates limited (e.g., no long-term revenue/EPS/EBITDA forecasts, no recommendation trends/price targets/upgrade-downgrade history).
+    US Market Data:
+        No tick-level data (30+ years), survivorship-bias-free data, or algorithmic features (pattern recognition, support/resistance).
+        WebSocket capped at 50 symbols (unlimited in paid).
+    International/Global:
+        Mostly end-of-day or delayed (no real-time for most non-US markets; real-time international only in Enterprise plans).
+        Limited global coverage for fundamentals, estimates, ETFs/indices.
+    Missing entirely:
+        Alternative data (social sentiment, patents, etc.).
+        US bonds, mutual funds, economic data.
+        Advanced ETF details (holdings, sector/country exposure, historical constituents).
+        Many premium endpoints (e.g., full financial statements, revenue breakdowns, news sentiment, recommendation trends, tick data, NBBO, splits, etc.).
+        finnhub.io
+        finnhub.io
+    Other restrictions:
+        Personal/non-commercial use only.
+        No access to certain real-time feeds for some forex/crypto exchanges (volume may be 0 or delayed).
+        Exceeding limits returns 429 errors.
+
+This makes the free tier excellent for basic US stock quotes, news, and light fundamental checks, but insufficient for high-frequency trading, deep historical analysis, global real-time data, or production/commercial apps. Many developers use it for testing/prototyping before upgrading.
+interactivebrokers.com
+reddit.com
+
+For the most current details, check https://finnhub.io/pricing and https://finnhub.io/docs/api directly, as API terms can evolve. If you need help querying the API, writing code to use it, or comparing alternatives (e.g., Alpha Vantage, Polygon, Financial Modeling Prep), let me know!
+Web page favicon
+Web page favicon
+Web page favicon
+20 sources
+
+give me a summary of each of these categories you mentioned for the free api using finhub. specifically, i want to know more about the categories / groupings of features you indicated which finhub provides
+
+Here’s a detailed summary of the main categories of features available in Finnhub’s free API tier (60 calls/minute rate limit, personal use only). These groupings are based on how Finnhub organizes their offerings in the pricing and documentation pages. The free tier focuses on basic access for prototyping and personal projects, with many advanced or high-depth endpoints reserved for paid plans.
+finnhub.io
+finnhub.io
+
+US Market Data
+This category covers real-time and basic price data for US stocks.
+
+    Real-time quotes available via /quote (sourced from IEX).
+    Real-time trade streaming via WebSocket (up to 50 symbols simultaneously; supports US stocks, forex, and crypto trades).
+    Market status, holidays, and basic reference data (e.g., /stock/market-status, /stock/market-holiday).
+    Limitations: No historical OHLC/candles, tick-level data, NBBO, splits, or dividends (these are premium-only). No deep historical depth.finnhub.io
+
+Fundamental Data (US coverage)
+Focuses on company basics and news for US-listed stocks.
+
+    Simplified company profile via /stock/profile2 (includes name, description, exchange, industry, logo, etc.).
+    Peer list via /stock/peers.
+    Company-specific news via /company-news (1 year historical + real-time updates, primarily North America).
+    General market news via /news.
+    Limitations: No standardized financial statements, as-reported financials, dividends (30+ years), SEC filings details, ownership breakdowns, press releases (20 years), executive compensation, or advanced metrics (these are premium).
+    finnhub.io
+    finnhub.io
+
+Estimates (US)
+Covers earnings-related forecasts and surprises for US companies.
+
+    Earnings surprises via /stock/earnings (last 4 quarters only).
+    Earnings calendar via /calendar/earnings (1 month historical + real-time updates).
+    Limitations: No long-term EPS/revenue/EBITDA/EBIT estimates (20+ years historical or 5 years forward), recommendation trends, price targets, or upgrade/downgrade history (premium-only).finnhub.io
+
+ETFs & Indices (US)
+Basic information on US-listed ETFs and indices.
+
+    Basic ETF profile data via /etf/profile (e.g., asset class, AUM, expense ratio, NAV, dividend yield, tracking index, etc.).
+    Limitations: No holdings, sector/country exposure, historical constituents, or full indices constituents (premium-only). No global ETF coverage.finnhub.io
+
+International Market Data
+End-of-day and delayed data for non-US markets.
+
+    End-of-day OHLC for many exchanges (e.g., TSX, Euronext, Deutsche Börse).
+    LSE data delayed by 15 minutes.
+    Basic forex and crypto exchange/symbol lists.
+    Limitations: Mostly end-of-day (no real-time for most non-US markets), limited history compared to paid plans (no 25+ years depth). No real-time international quotes or candles (premium).finnhub.io
+
+Other / Reference & Lookup
+Miscellaneous utility endpoints available freely.
+
+    Symbol lookup and search (/search, /stock/symbol for supported stock lists).
+    IPO calendar (/calendar/ipo).
+    Country metadata (risk premiums, currencies, etc.).
+    Basic FDA advisory committee calendar.
+    Insider transactions and sentiment (limited).
+    Limitations: No advanced alternative data (social sentiment, patents, ESG, supply chain, etc.), economic data, transcripts, technical indicators, or pattern recognition (all premium).finnhub.io
+
+Overall, the free tier excels at real-time US quotes, basic company profiles/news, limited earnings insights, and reference tools—great for light personal use or testing. For deeper history, global real-time data, technical analysis, or commercial applications, paid plans are required. Check https://finnhub.io/pricing and https://finnhub.io/docs/api for the latest details, as offerings can evolve. Let me know if you'd like examples of calling specific free endpoints!
+Web page favicon
+Web page favicon
+Web page favicon
+10 sources
+
+are you sure we do not have access to patent info? looks like the free api does provide this
+
+No, the free tier of Finnhub's API does not provide direct access to structured patent information. Let me clarify based on the official documentation.
+
+    There is a dedicated endpoint for USPTO patents (/stock/uspto-patent), which returns details like application numbers, filing dates, statuses, descriptions, and URLs for US patents associated with a company. However, this is classified under "Alternative Data" and requires a paid plan—specifically, it's only available in higher-tier subscriptions like the All-In-One plan (starting at $3,000/month). It's explicitly not included in the free tier.
+    finnhub.io
+    finnhub.io
+    That said, you might be referring to indirect patent mentions that could appear in SEC filings data. Endpoints like /stock/filings (lists SEC filings) and /stock/financials-reported (financial statements from SEC filings) are available in the free tier. These can sometimes include patent-related disclosures if they're part of a company's 10-K, 10-Q, or other reports (e.g., in the business description or risk factors sections). But this isn't structured or comprehensive patent data—it's just whatever is embedded in the filings text, and you'd have to parse it manually.finnhub.io
+
+If you're seeing something specific that suggests free access to patents (like a doc snippet or endpoint example), feel free to share more details so I can double-check. Otherwise, for dedicated patent queries, you'd need to upgrade or use alternatives like the USPTO's own API.
+
+i am looking to create an endpoint on a dart - flutter app, under a section called 'sentiment' which will feature data from the finhub api in a subsection. i am looking to structure it on a per-symbol basis, where the top selection is a specific watchlist created by the user, and the 'sentiment' section, (finhub's subsection), will show a listing of the stock symbols in the selected watchlist. once a symbol is selected, the symbol's page opens up, which will feature the symbol profile, containing the name, logo, description, current quote, and a collapsed peer list, below the profile it will have recent news (past 7 days), as well as the earnings below that with the earnings calendar at the bottom. is this an efficient implementation of the finhub api data?
+
+Yes, your proposed implementation is efficient and well-aligned with Finnhub's free tier API capabilities. It leverages the available free endpoints effectively, follows good mobile app practices (lazy loading, on-demand fetching), and stays within the free tier's generous 60 API calls/minute rate limit (plus a 30 calls/second burst cap) for personal/non-commercial use. Here's a breakdown of why it's efficient, potential minor optimizations, and how it maps to Finnhub's free data.
+Why This Is Efficient
+
+    Lazy loading / on-demand fetching:
+    The watchlist selection screen only needs to display a list of user-saved symbols (e.g., from local storage like Hive, SharedPreferences, or SQLite in Flutter). No API calls are required upfront—just render the symbols/names.
+    Detailed data (profile, quote, peers, news, earnings) is fetched only when the user taps a symbol. This avoids wasting calls on unused items, especially if watchlists are long (e.g., 20–50 symbols).
+
+    API call count per symbol view:
+    For each symbol detail page, you'd typically make 4–6 separate calls (all free endpoints):
+        /stock/profile2?symbol=... → name, logo URL, description, etc. (one call)
+        /quote?symbol=... → current price, change, high/low, etc. (real-time for US stocks)
+        /stock/peers?symbol=... → peer list (collapsed/expandable)
+        /company-news?symbol=...&from=YYYY-MM-DD&to=YYYY-MM-DD → recent news (set from=7 days ago, to=today; returns all matching items in one response—no pagination needed)
+        /stock/earnings?symbol=... → EPS surprises (last 4 quarters)
+        /calendar/earnings?symbol=... (optional symbol param) → upcoming earnings for that symbol (or omit symbol for a broader calendar and filter client-side)
+
+    → Total: ~5 calls per symbol view. At 60 calls/minute, a user could view ~12 symbols per minute without hitting limits—plenty for normal browsing. Repeated views of the same symbol can be cached.
+
+    Free tier compatibility:
+    All the endpoints you need are fully available in the free tier (confirmed via Finnhub docs):
+        Profile, quote, peers, news (1 year historical, but 7-day range is fine; North America focus), earnings surprises (last 4 quarters), earnings calendar (1 month + real-time updates).
+        No premium endpoints required (e.g., no need for /news-sentiment, deep history, or advanced alternatives).
+
+    Data fit for "Sentiment" section:
+    While Finnhub's free tier lacks a direct sentiment score (e.g., /news-sentiment is premium), your layout provides strong indirect sentiment signals:
+        Recent news headlines/summaries → users can gauge tone.
+        Earnings surprises → beat/miss history as a sentiment proxy.
+        Upcoming earnings calendar → anticipation effect.
+        Analyst recommendations (/stock/recommendation?symbol=... is also free) could be added as a simple "Buy/Hold/Sell" summary for extra sentiment flavor without extra cost.
+
+Potential Optimizations for Even Better Efficiency
+
+    Caching:
+    Use Flutter packages like flutter_cache_manager, hive, or shared_preferences with TTL:
+        Profile/peers/logo: cache indefinitely (rarely changes).
+        Quote: refresh every 30–60 seconds if user stays on page.
+        News: cache for 1–4 hours (or until next day).
+        Earnings data: cache for 24 hours.
+        This reduces calls dramatically on revisits or back/forth navigation.
+    Real-time enhancements (optional):
+    Finnhub's free WebSocket supports streaming real-time trades/quotes for up to 50 symbols. If users often monitor multiple watchlist stocks, subscribe to WS for quotes on the watchlist screen (or on detail page). This cuts repeated /quote calls and feels more responsive. (Library: web_socket_channel in Dart.)
+    Batching / pre-fetching:
+    No native batch endpoints in free tier, but for the watchlist screen, if you want mini-previews (e.g., current price + % change per symbol), pre-fetch /quote for the entire watchlist in parallel (using Future.wait in Flutter). Limit to 10–20 symbols to avoid bursts. Or skip and keep it symbol-only until tapped.
+    Rate limit handling:
+    Wrap API calls in a rate limiter (e.g., package:rate_limiter) or simple queue. Show loading states and retry on 429 errors with exponential backoff.
+    UI/UX tweaks:
+        Load profile + quote first (core info), then peers/news/earnings in parallel or sequentially.
+        For news: display headlines with images if available (from response).
+        Earnings calendar: Use ?symbol=... for per-symbol upcoming; if none, fall back to global and highlight matches.
+
+Summary
+
+This is a solid, efficient use of Finnhub's free tier—low call volume, good UX (fast initial load, detailed on tap), and maximal value from available data. It's ideal for a personal Flutter app. The only "inefficiency" would be rapid symbol switching without caching (but that's easily fixed). If your app grows or goes commercial, you'd eventually need a paid plan for higher limits or premium features like true news sentiment.
+
+If you share code snippets (e.g., your API service class) or want help with Flutter-specific implementation (e.g., caching, error handling, or WS integration), I can provide examples!
+Web page favicon
+Web page favicon
+Web page favicon
+10 sources
+
+now lookup the info provided by the marketaux api. specifically, i want to have a breakdown for what the marketaux api provides in the free tier, as well as the paid basic tier. make the same breakdown as you did for finhub, but meshed, (provide the capabilities and limitations of the paid basic tier, highlighting what is not included in the free version.) i am looking for stock-specific news and sentiment, not just news in general. also, keep it related to us markets.
+
+MarketAux API Breakdown (Focus: Stock-Specific News & Sentiment for US Markets)
+
+MarketAux is a financial news API that emphasizes entity recognition (including stocks/tickers) and per-article/per-entity sentiment analysis. The primary endpoint for your use case is /v1/news/all, which supports filtering by stock symbols (e.g., symbols=AAPL,TSLA), countries=us for US exchanges, entity_types=equity, date ranges (published_after/published_before), sentiment thresholds (sentiment_gte/sentiment_lte), and more. Responses include article details plus entities array with sentiment_score (-1 negative to +1 positive, 0 neutral) per highlighted entity, and aggregated sentiment_score per entity across highlights.marketaux.com
+
+This makes it strong for stock-specific news with built-in sentiment (better than Finnhub's free tier, which lacks native sentiment). All plans provide access to these core features (news filtering by symbols, sentiment in responses). US markets are well-covered via symbol filtering and countries=us. Data is ingested in real-time from 5,000+ sources.
+
+Free Tier Capabilities and Limitations
+
+    Rate limits: 100 API requests per day.marketaux.com
+    Articles per request: Max limit=3 (pagination via page param to fetch more, but very low volume).marketaux.com
+    Stock-specific news & sentiment:
+        Full access to /news/all with symbol filtering, countries=us, sentiment filters, date ranges (historical back to at least 2021 via published_after etc.).
+        Per-article: sentiment per entity/highlight.
+        Entity search (/entity/search) for symbol lookup.
+    Other: Real-time-ish updates, English language support, full metadata.
+    Limitations:
+        Extremely low daily requests and articles per call → challenging for per-symbol views in an app (e.g., fetching 7 days of news for one symbol could require many paginated calls and eat your quota quickly if users browse multiple symbols).
+        No advanced aggregation (e.g., average sentiment over time, intraday/hourly stats, trending entities) — 0 entities per stat request on /entity/stats endpoints.
+        marketaux.com
+        marketaux.com
+        Personal/non-commercial use implied (free plan is for testing/light use).
+
+Paid Basic Tier ($29/mo or $24/mo annual) Capabilities and Limitations
+This is the entry paid plan.marketaux.com
+
+    Rate limits: 2,500 API requests per day (25x more than free).marketaux.com
+    Articles per request: Max limit=20 (much better for comprehensive fetches).marketaux.com
+    Stock-specific news & sentiment:
+        All free features retained: full /news/all access, symbol filtering, countries=us, sentiment scores per entity/article.
+        Easier to retrieve more articles per symbol (e.g., past 7–30 days in fewer calls; pagination still available).
+    Additions over free:
+        Significantly higher volume → ideal for your Flutter app's per-symbol "Sentiment" section (fetch recent news + sentiment for a watchlist item without hitting limits quickly).
+        Same core data quality (no extra sentiment depth, but more practical usage).
+    What is NOT included in Basic (still limited vs higher tiers):
+        Advanced entity stats endpoints (/entity/stats/intraday, /entity/stats/aggregation, trending) remain at 0 entities per stat request — these require Standard plan ($49/mo) or higher for aggregated sentiment (e.g., avg over time periods, intraday trends, volume + sentiment combined).
+        marketaux.com
+        marketaux.com
+        No change to historical depth or other premium features.
+
+Comparison Summary for Your Use Case
+
+    Free: Works for prototyping or very light personal use (e.g., occasional symbol checks), but quota and low articles/call make it inefficient for dynamic watchlist-based sentiment views.
+    Basic: Worth the upgrade for reliable app performance — 20 articles/call lets you fetch meaningful recent US stock news + sentiment in 1–2 calls per symbol, and 2,500/day supports multiple users/sessions.
+    If you later want aggregated sentiment (e.g., "average sentiment this week" or charts), upgrade to Standard+.
+
+This meshes well with your Finnhub setup (e.g., use MarketAux for news/sentiment in the "Sentiment" section, Finnhub for quotes/profile/earnings). Both free tiers are personal-use only. For the latest details, check https://www.marketaux.com/pricing and https://www.marketaux.com/documentation directly, as APIs evolve. If you need help comparing endpoints, sample calls for a symbol, or Flutter integration ideas, let me know!

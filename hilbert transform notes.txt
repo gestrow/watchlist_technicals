@@ -1,0 +1,163 @@
+1. The Hilbert Transform (The Instantaneous Period)
+The Hilbert Transform is used to calculate the Instantaneous Phase of the price signal. Think of it like taking a price wave and creating a "shadow" version of it that is shifted by 90 degrees.
+The Algorithm Steps:
+	1. Pre-processing (Detrending): Cycles cannot be measured if a trend is present (a trend is essentially a cycle with an infinite period). You must use a High-Pass Filter or a "Detrender" to remove the trend.
+	2. Generate In-Phase () and Quadrature () components: * The In-Phase is the original (detrended) signal.
+		○ The Quadrature is the signal shifted by 90°.
+	3. Calculate the Phase: The phase angle at any point is: 
+	4. Determine the Period: The frequency is the Rate of Change (ROC) of the phase. If the phase changes by degrees from one bar to the next, the Dominant Cycle () is: 
+
+2. The MESA Algorithm (Maximum Entropy Spectral Analysis)
+While the Hilbert Transform gives you a "snapshot" of the current period, MESA is a high-resolution spectral estimation technique. It is preferred in finance because it can identify a cycle with very little data (as few as 30 bars), whereas Fourier requires hundreds.
+How it works:
+	• MESA treats the price data as an Autoregressive (AR) process.
+	• It calculates the coefficients that would best predict the next price point while maximizing the "entropy" (uncertainty) of the rest of the signal.
+	• This produces a Power Spectrum (a graph of Cycle Length vs. Amplitude).
+	• The Dominant Cycle is simply the highest peak on that spectrum.
+
+3. Is it based on Highs and Lows?
+In professional implementations, using just the Closing Price is considered "noisy." Most cycle algorithms use the Midpoint Price: 
+
+Why?
+	• Averaging: High/Low averaging acts as a natural one-bar "smoothing" filter.
+	• Cycle Symmetry: Cycles are about the oscillation around a mean. The midpoint represents the "center of gravity" for that time interval better than the Close, which might be skewed by a last-second scalp or "end-of-day" volatility.
+
+4. Practical Application in Finance
+Once you have the Dominant Cycle (), you don't just trade the cycle itself. You use to make your other indicators adaptive.
+	• Adaptive RSI: Instead of a fixed 14-day RSI, you set the RSI period to .
+	• MAMA (MESA Adaptive Moving Average): This is Ehlers' most famous creation. It uses the Hilbert Transform to dynamically change its alpha (smoothing factor). When the market is in a "Cycle Mode," the average slows down; when in a "Trend Mode," it speeds up to catch the move.
+Implementation Tip for your Flutter App:
+Since you are building an Android app, calculating a full MESA spectrum in Dart/Flutter might be CPU-intensive if you do it for 100 symbols at once.
+	1. Use the Homodyne Discriminator: This is Ehlers' "lite" version of the Hilbert Transform. It’s significantly easier to code and very fast for mobile processors.
+	2. Look for "Ehlers' Technical Analysis" libraries: There are several C++ or Python implementations you can port to Dart.
+
+
+To calculate the Dominant Cycle using the Hilbert Transform (specifically the Homodyne Discriminator method popularized by John Ehlers), we must move through four distinct mathematical phases.
+In your Flutter implementation, you will pull the High () and Low () values for each bar from your API (like Alpha Vantage).
+Phase 1: Pre-processing & The Midpoint Price
+We start by creating a "clean" price point for each bar . We use the average of the high and low to reduce noise.
+
+
+Phase 2: The Detrender (High-Pass Filter)
+To find a cycle, we must remove the trend. We use a 7-tap filter that removes frequencies lower than our expected cycle.
+The Equation: 
+
+	• Substitution: refers to the Price from bars ago.
+	• Variable: is the dominant cycle calculated in the previous bar (initialize at 20 for the first run).
+
+Phase 3: The Hilbert Transform (Generating and )
+We now split the detrended signal into two components: the In-Phase () and the Quadrature (). is simply the signal shifted by 90°.
+1. Calculate In-Phase (): 
+
+2. Calculate Quadrature (): 
+
+
+Phase 4: Finding the Dominant Cycle (Homodyne Discriminator)
+Now we compare the phase of the current bar to the phase of the previous bar. The "difference" in phase tells us how fast the cycle is moving.
+1. Calculate the Differential Phase: To avoid the mathematical complexity of arctangents, we use the complex conjugate product (): 
+
+
+2. Smoothing the result: To prevent the cycle length from jumping erratically, we apply a smoothing filter (Alpha-Beta filter style): 
+
+
+3. The Final Period Calculation: We convert the smoothed vectors into a cycle length (measured in bars): 
+
+The raw period is: 
+
+4. Final Constraints: The market rarely has a meaningful cycle shorter than 6 bars or longer than 50 bars. We apply a limit and a final EMA smooth: 
+
+
+Summary Checklist for your Dart Code:
+	1. Buffer: Store at least the last 10 bars of , , , and in a List.
+	2. Initial Values: For the first 10 bars of your app’s data, you cannot calculate this. Set a default period = 20.
+	3. Math Library: Use dart:math for the atan() function.
+
+
+To calculate the dominant cycle accurately using the Hilbert Transform, 30 days of data is the bare minimum. Ideally, you want 40 to 60 days to allow the filters (which have a "lag" or "warm-up" period) to stabilize.
+The following Dart implementation follows John Ehlers' Homodyne Discriminator. It processes a list of price data and returns the most recent dominant cycle period.
+Flutter/Dart Implementation: DominantCycleCalculator
+You can drop this class into your Flutter project. It assumes you have a list of double values representing the (High + Low) / 2 for each day.
+Dart
+
+import 'dart:math' as math;
+class DominantCycleCalculator {
+  /// Calculates the Dominant Cycle Period using the Homodyne Discriminator.
+  /// Needs at least 15-20 bars to stabilize; 30-50 bars is recommended.
+  double calculate(List<double> prices) {
+    if (prices.length < 15) return 0.0; // Not enough data to process filters
+int n = prices.length;
+    
+    // Arrays to store intermediate values for the filter taps
+    List<double> detrender = List.filled(n, 0.0);
+    List<double> i1 = List.filled(n, 0.0);
+    List<double> q1 = List.filled(n, 0.0);
+    List<double> period = List.filled(n, 0.0);
+    
+    // Smoothed real and imaginary components
+    double smoothRe = 0.0;
+    double smoothIm = 0.0;
+    double currentPeriod = 20.0; // Initial seed value
+// Loop through prices starting after the 7-bar filter warm-up
+    for (int i = 7; i < n; i++) {
+      
+      // 1. Detrend the signal (Remove the price trend to find the wave)
+      // Using a 7-tap Hilbert Transform filter
+      detrender[i] = (0.0962 * prices[i] + 
+                      0.5769 * prices[i - 2] - 
+                      0.5769 * prices[i - 4] - 
+                      0.0962 * prices[i - 6]) * (0.1 * currentPeriod + 0.8);
+// 2. Compute In-Phase (I) and Quadrature (Q) components
+      // I is the detrended signal delayed; Q is the Hilbert Transform of I
+      i1[i] = detrender[i - 3];
+      q1[i] = (0.0962 * detrender[i] + 
+               0.5769 * detrender[i - 2] - 
+               0.5769 * detrender[i - 4] - 
+               0.0962 * detrender[i - 6]) * (0.1 * currentPeriod + 0.8);
+// 3. Homodyne Discriminator (Phase calculation)
+      // We calculate the complex product of current (I,Q) and previous (I,Q)
+      double re = i1[i] * i1[i - 1] + q1[i] * q1[i - 1];
+      double im = i1[i] * q1[i - 1] - q1[i] * i1[i - 1];
+// 4. Smooth the Re and Im parts with an Alpha-Beta filter (Smoothing Factor = 0.2)
+      smoothRe = 0.2 * re + 0.8 * smoothRe;
+      smoothIm = 0.2 * im + 0.8 * smoothIm;
+// 5. Convert phase change to period
+      double tempPeriod = 0.0;
+      if (smoothIm != 0 && smoothRe != 0) {
+        // Calculate the phase change using ArcTangent
+        // result is in radians, convert to degrees
+        tempPeriod = 360 / (math.atan(smoothIm / smoothRe) * (180 / math.pi));
+      }
+// Constrain the period to realistic market cycles (6 to 50 bars)
+      if (tempPeriod > 1.5 * currentPeriod) tempPeriod = 1.5 * currentPeriod;
+      if (tempPeriod < 0.67 * currentPeriod) tempPeriod = 0.67 * currentPeriod;
+      if (tempPeriod < 6) tempPeriod = 6;
+      if (tempPeriod > 50) tempPeriod = 50;
+// 6. Final Smoothing of the period value
+      currentPeriod = 0.33 * tempPeriod + 0.67 * currentPeriod;
+      period[i] = currentPeriod;
+    }
+return period.last;
+  }
+}
+
+How to use this in your App Logic
+When you pull your data from the API (Alpha Vantage/Finnhub), you need to map the JSON to a list of midpoints.
+Dart
+
+// Inside your API service or logic class
+void processStockData(List<Map<String, dynamic>> ohlcData) {
+  // 1. Convert OHLC to Midpoint List [(High + Low) / 2]
+  List<double> midpoints = ohlcData.map((bar) {
+    double high = double.parse(bar['high']);
+    double low = double.parse(bar['low']);
+    return (high + low) / 2;
+  }).toList();
+// 2. Pass to the calculator
+  DominantCycleCalculator calc = DominantCycleCalculator();
+  double cyclePeriod = calc.calculate(midpoints);
+print("The dominant cycle for this symbol is: ${cyclePeriod.toStringAsFixed(2)} bars");
+}
+Key Considerations for your Implementation:
+	• The "Lookback" requirement: To get a valid reading for today, you need to feed the function at least 30-40 prior days of history. The first few days of the calculation are essentially "junk" while the filter coefficients prime themselves.
+	• Static vs. Dynamic: If the output is 20.0, it means the market "breathes" every 20 trading days. You can use this to set your Moving Average periods (e.g., use a 10-day SMA, which is , to catch the cycle crest).
+	• Memory Management: Since this is for a mobile app, ensure you aren't storing massive lists of prices in memory. List.filled is used here for performance to avoid dynamic resizing.
