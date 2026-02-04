@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
+import '../../features/sentiment/data/datasources/marketaux_api.dart';
 import '../constants/api_constants.dart';
 
 final sl = GetIt.instance;
@@ -30,12 +32,24 @@ Future<void> init() async {
     return dio;
   });
 
-  // Features will be initialized here
-  // Example structure:
-  // _initWatchlistFeature();
-  // _initTechnicalsFeature();
-  // _initSentimentFeature();
-  // _initSettingsFeature();
+  // Core - Secure Storage
+  sl.registerLazySingleton<FlutterSecureStorage>(
+    () => const FlutterSecureStorage(),
+  );
+
+  // Features
+  _initSentimentFeature();
+}
+
+// Sentiment Feature - News & Sentiment Analysis (MarketAux)
+void _initSentimentFeature() {
+  // Data sources
+  sl.registerLazySingleton<MarketAuxApi>(
+    () => MarketAuxApi(
+      dio: sl(),
+      secureStorage: sl(),
+    ),
+  );
 }
 
 // Feature-specific initialization functions will be added here
