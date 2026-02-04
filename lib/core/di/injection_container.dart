@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import '../../features/sentiment/data/datasources/marketaux_api.dart';
+import '../../features/sentiment/data/datasources/finnhub_api.dart';
+import '../../features/technicals/data/datasources/yahoo_finance_api.dart';
 import '../constants/api_constants.dart';
 
 final sl = GetIt.instance;
@@ -39,15 +41,33 @@ Future<void> init() async {
 
   // Features
   _initSentimentFeature();
+  _initTechnicalsFeature();
 }
 
-// Sentiment Feature - News & Sentiment Analysis (MarketAux)
+// Sentiment Feature - News & Sentiment Analysis (MarketAux + Finnhub)
 void _initSentimentFeature() {
   // Data sources
   sl.registerLazySingleton<MarketAuxApi>(
     () => MarketAuxApi(
       dio: sl(),
       secureStorage: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton<FinnhubApi>(
+    () => FinnhubApi(
+      dio: sl(),
+      secureStorage: sl(),
+    ),
+  );
+}
+
+// Technicals Feature - Historical OHLCV data for technical calculations
+void _initTechnicalsFeature() {
+  // Data sources
+  sl.registerLazySingleton<YahooFinanceApi>(
+    () => YahooFinanceApi(
+      dio: sl(),
     ),
   );
 }

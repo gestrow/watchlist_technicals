@@ -3,7 +3,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'core/constants/app_constants.dart';
 import 'core/di/injection_container.dart' as di;
 import 'core/theme/app_theme.dart';
-import 'features/sentiment/presentation/pages/marketaux_test_page.dart';
+import 'features/sentiment/presentation/pages/api_test_home_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,8 +39,8 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      // Use MarketAux test page to verify API integration
-      home: const MarketAuxTestPage(),
+      // Use API test home page to access both MarketAux and Finnhub tests
+      home: const ApiTestHomePage(),
     );
   }
 }
