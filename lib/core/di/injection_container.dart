@@ -10,6 +10,7 @@ import '../../features/technicals/domain/calculators/rsi_calculator.dart';
 import '../../features/technicals/domain/calculators/macd_calculator.dart';
 import '../../features/technicals/domain/calculators/bollinger_bands_calculator.dart';
 import '../../features/technicals/domain/calculators/vwap_calculator.dart';
+import '../../features/technicals/domain/calculators/dominant_cycle_calculator.dart';
 import '../constants/api_constants.dart';
 
 final sl = GetIt.instance;
@@ -84,6 +85,8 @@ void _initTechnicalsFeature() {
   sl.registerLazySingleton<MacdCalculator>(() => MacdCalculator());
   sl.registerLazySingleton<BollingerBandsCalculator>(() => BollingerBandsCalculator());
   sl.registerLazySingleton<VwapCalculator>(() => VwapCalculator());
+  sl.registerLazySingleton<DominantCycleCalculator>(() => DominantCycleCalculator());
+  sl.registerLazySingleton<DominantCycleFacade>(() => DominantCycleFacade());
 }
 
 // Feature-specific initialization functions will be added here
