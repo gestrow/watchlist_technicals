@@ -7,6 +7,9 @@ import '../../features/technicals/data/datasources/yahoo_finance_api.dart';
 import '../../features/technicals/domain/calculators/sma_calculator.dart';
 import '../../features/technicals/domain/calculators/ema_calculator.dart';
 import '../../features/technicals/domain/calculators/rsi_calculator.dart';
+import '../../features/technicals/domain/calculators/macd_calculator.dart';
+import '../../features/technicals/domain/calculators/bollinger_bands_calculator.dart';
+import '../../features/technicals/domain/calculators/vwap_calculator.dart';
 import '../constants/api_constants.dart';
 
 final sl = GetIt.instance;
@@ -78,6 +81,9 @@ void _initTechnicalsFeature() {
   sl.registerLazySingleton<SmaCalculator>(() => SmaCalculator());
   sl.registerLazySingleton<EmaCalculator>(() => EmaCalculator());
   sl.registerLazySingleton<RsiCalculator>(() => RsiCalculator());
+  sl.registerLazySingleton<MacdCalculator>(() => MacdCalculator());
+  sl.registerLazySingleton<BollingerBandsCalculator>(() => BollingerBandsCalculator());
+  sl.registerLazySingleton<VwapCalculator>(() => VwapCalculator());
 }
 
 // Feature-specific initialization functions will be added here
