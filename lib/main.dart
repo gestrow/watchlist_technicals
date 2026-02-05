@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+
 import 'core/constants/app_constants.dart';
 import 'core/di/injection_container.dart' as di;
+import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
-import 'features/sentiment/presentation/pages/api_test_home_page.dart';
+import 'features/watchlist/data/models/watchlist_model.dart';
+import 'features/watchlist/presentation/bloc/watchlist_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,9 +15,12 @@ void main() async {
   // Initialize Hive
   await Hive.initFlutter();
 
+  // Register Hive adapters
+  Hive.registerAdapter(WatchlistModelAdapter());
+
   // Open Hive boxes
   await Future.wait([
-    Hive.openBox(AppConstants.watchlistBoxName),
+    Hive.openBox<WatchlistModel>(AppConstants.watchlistBoxName),
     Hive.openBox(AppConstants.settingsBoxName),
     Hive.openBox(AppConstants.cacheBoxName),
     Hive.openBox(AppConstants.searchHistoryBoxName),
@@ -33,14 +40,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: AppConstants.appName,
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
-      // Use API test home page to access both MarketAux and Finnhub tests
-      home: const ApiTestHomePage(),
+    final router = createRouter();
+
+    return BlocProvider(
+      create: (_) => di.sl<WatchlistBloc>()..add(const LoadWatchlists()),
+      child: MaterialApp.router(
+        title: AppConstants.appName,
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: ThemeMode.system,
+        routerConfig: router,
+      ),
     );
   }
 }

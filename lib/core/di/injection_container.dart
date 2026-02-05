@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
+import 'package:hive/hive.dart';
+
 import '../../features/sentiment/data/datasources/marketaux_api.dart';
 import '../../features/sentiment/data/datasources/finnhub_api.dart';
 import '../../features/technicals/data/datasources/yahoo_finance_api.dart';
@@ -11,7 +13,12 @@ import '../../features/technicals/domain/calculators/macd_calculator.dart';
 import '../../features/technicals/domain/calculators/bollinger_bands_calculator.dart';
 import '../../features/technicals/domain/calculators/vwap_calculator.dart';
 import '../../features/technicals/domain/calculators/dominant_cycle_calculator.dart';
+import '../../features/watchlist/data/models/watchlist_model.dart';
+import '../../features/watchlist/data/repositories/watchlist_repository_impl.dart';
+import '../../features/watchlist/domain/repositories/watchlist_repository.dart';
+import '../../features/watchlist/presentation/bloc/watchlist_bloc.dart';
 import '../constants/api_constants.dart';
+import '../constants/app_constants.dart';
 
 final sl = GetIt.instance;
 
@@ -49,6 +56,7 @@ Future<void> init() async {
   // Features
   _initSentimentFeature();
   _initTechnicalsFeature();
+  _initWatchlistFeature();
 }
 
 // Sentiment Feature - News & Sentiment Analysis (MarketAux + Finnhub)
@@ -89,36 +97,25 @@ void _initTechnicalsFeature() {
   sl.registerLazySingleton<DominantCycleFacade>(() => DominantCycleFacade());
 }
 
-// Feature-specific initialization functions will be added here
-// Example:
-// void _initWatchlistFeature() {
-//   // BLoC
-//   sl.registerFactory(() => WatchlistBloc(getWatchlist: sl()));
-//
-//   // Use cases
-//   sl.registerLazySingleton(() => GetWatchlist(sl()));
-//
-//   // Repository
-//   sl.registerLazySingleton<WatchlistRepository>(
-//     () => WatchlistRepositoryImpl(
-//       remoteDataSource: sl(),
-//       localDataSource: sl(),
-//     ),
-//   );
-//
-//   // Data sources
-//   sl.registerLazySingleton<WatchlistRemoteDataSource>(
-//     () => WatchlistRemoteDataSourceImpl(dio: sl()),
-//   );
-//
-//   sl.registerLazySingleton<WatchlistLocalDataSource>(
-//     () => WatchlistLocalDataSourceImpl(box: sl()),
-//   );
-// }
+// Watchlist Feature - Watchlist management with local storage
+void _initWatchlistFeature() {
+  // BLoC - Factory so each widget gets a fresh instance
+  sl.registerFactory<WatchlistBloc>(
+    () => WatchlistBloc(repository: sl()),
+  );
+
+  // Repository - Lazy singleton, will use registered Hive box
+  sl.registerLazySingleton<WatchlistRepository>(
+    () => WatchlistRepositoryImpl(
+      watchlistBox: sl<Box<WatchlistModel>>(instanceName: AppConstants.watchlistBoxName),
+    ),
+  );
+}
 
 Future<void> registerHiveBoxes() async {
-  // Register Hive boxes after they are opened
-  // This should be called from main.dart after opening boxes
-  // Example:
-  // sl.registerLazySingleton<Box>(() => Hive.box('watchlist'), instanceName: 'watchlist');
+  // Register typed Hive box for watchlists
+  sl.registerLazySingleton<Box<WatchlistModel>>(
+    () => Hive.box<WatchlistModel>(AppConstants.watchlistBoxName),
+    instanceName: AppConstants.watchlistBoxName,
+  );
 }
