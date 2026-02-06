@@ -13,6 +13,7 @@ import '../../features/technicals/domain/calculators/macd_calculator.dart';
 import '../../features/technicals/domain/calculators/bollinger_bands_calculator.dart';
 import '../../features/technicals/domain/calculators/vwap_calculator.dart';
 import '../../features/technicals/domain/calculators/dominant_cycle_calculator.dart';
+import '../../features/technicals/domain/usecases/calculate_technicals_usecase.dart';
 import '../../features/watchlist/data/models/watchlist_model.dart';
 import '../../features/watchlist/data/repositories/watchlist_repository_impl.dart';
 import '../../features/watchlist/domain/repositories/watchlist_repository.dart';
@@ -95,6 +96,8 @@ void _initTechnicalsFeature() {
   sl.registerLazySingleton<VwapCalculator>(() => VwapCalculator());
   sl.registerLazySingleton<DominantCycleCalculator>(() => DominantCycleCalculator());
   sl.registerLazySingleton<DominantCycleFacade>(() => DominantCycleFacade());
+
+  // Use cases - registered after Hive boxes are opened
 }
 
 // Watchlist Feature - Watchlist management with local storage
@@ -117,5 +120,19 @@ Future<void> registerHiveBoxes() async {
   sl.registerLazySingleton<Box<WatchlistModel>>(
     () => Hive.box<WatchlistModel>(AppConstants.watchlistBoxName),
     instanceName: AppConstants.watchlistBoxName,
+  );
+
+  // Register cache box for technicals
+  sl.registerLazySingleton<Box>(
+    () => Hive.box(AppConstants.cacheBoxName),
+    instanceName: AppConstants.cacheBoxName,
+  );
+
+  // Register CalculateTechnicalsUsecase (needs cache box)
+  sl.registerLazySingleton<CalculateTechnicalsUsecase>(
+    () => CalculateTechnicalsUsecase(
+      api: sl<YahooFinanceApi>(),
+      cacheBox: sl<Box>(instanceName: AppConstants.cacheBoxName),
+    ),
   );
 }
