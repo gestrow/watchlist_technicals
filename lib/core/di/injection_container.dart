@@ -5,6 +5,8 @@ import 'package:hive/hive.dart';
 
 import '../../features/sentiment/data/datasources/marketaux_api.dart';
 import '../../features/sentiment/data/datasources/finnhub_api.dart';
+import '../../features/sentiment/data/repositories/sentiment_repository_impl.dart';
+import '../../features/sentiment/domain/repositories/sentiment_repository.dart';
 import '../../features/technicals/data/datasources/yahoo_finance_api.dart';
 import '../../features/technicals/domain/calculators/sma_calculator.dart';
 import '../../features/technicals/domain/calculators/ema_calculator.dart';
@@ -74,6 +76,13 @@ void _initSentimentFeature() {
     () => FinnhubApi(
       dio: sl(),
       secureStorage: sl(),
+    ),
+  );
+
+  // Repository
+  sl.registerLazySingleton<SentimentRepository>(
+    () => SentimentRepositoryImpl(
+      finnhubApi: sl<FinnhubApi>(),
     ),
   );
 }
