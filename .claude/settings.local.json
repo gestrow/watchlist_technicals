@@ -7,7 +7,9 @@
       "Bash(flutter pub run build_runner build:*)",
       "Bash(flutter run:*)",
       "Bash(flutter test:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(dir:*)",
+      "Bash(findstr:*)"
     ]
   }
 }
