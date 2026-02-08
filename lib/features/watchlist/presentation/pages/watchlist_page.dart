@@ -114,17 +114,26 @@ class _WatchlistContent extends StatelessWidget {
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.only(top: 8, bottom: 88),
-      itemCount: watchlists.length,
-      itemBuilder: (context, index) {
-        final watchlist = watchlists[index];
-        return WatchlistCard(
-          watchlist: watchlist,
-          onEdit: () => _showEditDialog(context, watchlist),
-          onDelete: () => _showDeleteDialog(context, watchlist),
-        );
+    return RefreshIndicator(
+      onRefresh: () async {
+        context.read<WatchlistBloc>().add(const LoadWatchlists());
+        // Wait for state to update
+        await context.read<WatchlistBloc>().stream.firstWhere(
+              (state) => state is WatchlistLoaded || state is WatchlistError,
+            );
       },
+      child: ListView.builder(
+        padding: const EdgeInsets.only(top: 8, bottom: 88),
+        itemCount: watchlists.length,
+        itemBuilder: (context, index) {
+          final watchlist = watchlists[index];
+          return WatchlistCard(
+            watchlist: watchlist,
+            onEdit: () => _showEditDialog(context, watchlist),
+            onDelete: () => _showDeleteDialog(context, watchlist),
+          );
+        },
+      ),
     );
   }
 

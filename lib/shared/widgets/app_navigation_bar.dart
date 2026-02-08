@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 /// Bottom navigation bar for the app with 4 main sections.
@@ -15,6 +16,7 @@ class AppNavigationBar extends StatelessWidget {
     return NavigationBar(
       selectedIndex: currentIndex,
       onDestinationSelected: (index) => _onItemTapped(context, index),
+      animationDuration: const Duration(milliseconds: 300),
       destinations: const [
         NavigationDestination(
           icon: Icon(Icons.list_alt_outlined),
@@ -41,19 +43,21 @@ class AppNavigationBar extends StatelessWidget {
   }
 
   void _onItemTapped(BuildContext context, int index) {
+    // Prevent redundant navigation to current page
+    if (index == currentIndex) return;
+
+    // Haptic feedback on navigation
+    HapticFeedback.lightImpact();
+
     switch (index) {
       case 0:
         context.go('/watchlists');
-        break;
       case 1:
         context.go('/technicals');
-        break;
       case 2:
         context.go('/sentiment');
-        break;
       case 3:
         context.go('/settings');
-        break;
     }
   }
 }

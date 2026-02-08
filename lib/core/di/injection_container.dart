@@ -2,8 +2,11 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../features/sentiment/data/datasources/marketaux_api.dart';
+import '../services/connectivity_service.dart';
+import '../services/navigation_persistence_service.dart';
 import '../../features/sentiment/data/datasources/finnhub_api.dart';
 import '../../features/sentiment/data/repositories/sentiment_repository_impl.dart';
 import '../../features/sentiment/domain/repositories/sentiment_repository.dart';
@@ -58,6 +61,11 @@ Future<void> init() async {
   // Core - Secure Storage
   sl.registerLazySingleton<FlutterSecureStorage>(
     () => const FlutterSecureStorage(),
+  );
+
+  // Core - Connectivity Service
+  sl.registerLazySingleton<ConnectivityService>(
+    () => ConnectivityService(),
   );
 
   // Features
@@ -148,6 +156,16 @@ void _initWatchlistFeature() {
     () => WatchlistRepositoryImpl(
       watchlistBox: sl<Box<WatchlistModel>>(instanceName: AppConstants.watchlistBoxName),
     ),
+  );
+}
+
+/// Register SharedPreferences and related services.
+Future<void> registerPreferences() async {
+  final prefs = await SharedPreferences.getInstance();
+  sl.registerLazySingleton<SharedPreferences>(() => prefs);
+
+  sl.registerLazySingleton<NavigationPersistenceService>(
+    () => NavigationPersistenceService(prefs: sl()),
   );
 }
 

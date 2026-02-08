@@ -245,13 +245,19 @@ class _SentimentPageContentState extends State<_SentimentPageContent> {
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(12),
-      itemCount: symbols.length,
-      itemBuilder: (context, index) {
-        final symbol = symbols[index];
-        return _buildSymbolCard(context, symbol: symbol);
+    return RefreshIndicator(
+      onRefresh: () async {
+        // Refresh watchlists which will update symbols
+        _syncWatchlists();
       },
+      child: ListView.builder(
+        padding: const EdgeInsets.all(12),
+        itemCount: symbols.length,
+        itemBuilder: (context, index) {
+          final symbol = symbols[index];
+          return _buildSymbolCard(context, symbol: symbol);
+        },
+      ),
     );
   }
 

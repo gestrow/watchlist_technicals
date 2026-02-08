@@ -73,7 +73,18 @@ dependencies:
   # URL Launcher
   url_launcher: ^6.2.5
 
+  # Connectivity & Preferences
+  connectivity_plus: ^6.0.3
+  shared_preferences: ^2.2.2
+
+  # Shimmer Effect
+  shimmer: ^3.0.0
+
 dev_dependencies:
+  # Splash Screen & App Icon
+  flutter_native_splash: ^2.3.10
+  flutter_launcher_icons: ^0.13.1
+
   flutter_test:
     sdk: flutter
 
@@ -127,3 +138,22 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+# Native splash screen configuration
+# Run: dart run flutter_native_splash:create
+flutter_native_splash:
+  color: "#1E3A5F"
+  color_dark: "#0D1B2A"
+  android_12:
+    color: "#1E3A5F"
+    color_dark: "#0D1B2A"
+  web: false
+
+# App icon configuration (requires assets/app_icon.png)
+# Run: dart run flutter_launcher_icons
+# flutter_launcher_icons:
+#   android: true
+#   ios: true
+#   image_path: "assets/app_icon.png"
+#   adaptive_icon_background: "#1E3A5F"
+#   adaptive_icon_foreground: "assets/app_icon_foreground.png"

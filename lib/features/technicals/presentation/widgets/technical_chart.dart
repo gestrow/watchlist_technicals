@@ -25,10 +25,12 @@ class TechnicalChart extends StatelessWidget {
 
     return Column(
       children: [
-        // Price chart with overlays
+        // Price chart with overlays (wrapped in RepaintBoundary for performance)
         SizedBox(
           height: 300,
-          child: _buildPriceChart(isDark),
+          child: RepaintBoundary(
+            child: _buildPriceChart(isDark),
+          ),
         ),
 
         const SizedBox(height: 8),
@@ -36,7 +38,9 @@ class TechnicalChart extends StatelessWidget {
         // RSI panel
         SizedBox(
           height: 120,
-          child: _buildRsiChart(isDark),
+          child: RepaintBoundary(
+            child: _buildRsiChart(isDark),
+          ),
         ),
 
         const SizedBox(height: 8),
@@ -44,7 +48,9 @@ class TechnicalChart extends StatelessWidget {
         // MACD panel
         SizedBox(
           height: 120,
-          child: _buildMacdChart(isDark),
+          child: RepaintBoundary(
+            child: _buildMacdChart(isDark),
+          ),
         ),
       ],
     );
