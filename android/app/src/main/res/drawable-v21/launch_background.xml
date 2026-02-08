@@ -2,5 +2,5 @@
 <!-- Splash screen with app theme color (Android 5.0+) -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Primary app color: #1E3A5F -->
-    <item android:drawable="#1E3A5F" />
+    <item android:drawable="@color/splash_background" />
 </layer-list>

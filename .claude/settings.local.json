@@ -9,7 +9,8 @@
       "Bash(flutter test:*)",
       "Bash(tree:*)",
       "Bash(dir:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(flutter build:*)"
     ]
   }
 }
