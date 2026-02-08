@@ -7,6 +7,10 @@ import '../../features/sentiment/data/datasources/marketaux_api.dart';
 import '../../features/sentiment/data/datasources/finnhub_api.dart';
 import '../../features/sentiment/data/repositories/sentiment_repository_impl.dart';
 import '../../features/sentiment/domain/repositories/sentiment_repository.dart';
+import '../../features/settings/data/datasources/secure_storage_datasource.dart';
+import '../../features/settings/data/repositories/settings_repository_impl.dart';
+import '../../features/settings/domain/repositories/settings_repository.dart';
+import '../../features/settings/presentation/bloc/settings_bloc.dart';
 import '../../features/technicals/data/datasources/yahoo_finance_api.dart';
 import '../../features/technicals/domain/calculators/sma_calculator.dart';
 import '../../features/technicals/domain/calculators/ema_calculator.dart';
@@ -57,9 +61,31 @@ Future<void> init() async {
   );
 
   // Features
+  _initSettingsFeature();
   _initSentimentFeature();
   _initTechnicalsFeature();
   _initWatchlistFeature();
+}
+
+// Settings Feature - API key management
+void _initSettingsFeature() {
+  // Datasource
+  sl.registerLazySingleton<SecureStorageDatasource>(
+    () => SecureStorageDatasource(storage: sl()),
+  );
+
+  // Repository
+  sl.registerLazySingleton<SettingsRepository>(
+    () => SettingsRepositoryImpl(datasource: sl()),
+  );
+
+  // BLoC - Factory so each page gets a fresh instance
+  sl.registerFactory<SettingsBloc>(
+    () => SettingsBloc(
+      repository: sl(),
+      dio: sl(),
+    ),
+  );
 }
 
 // Sentiment Feature - News & Sentiment Analysis (MarketAux + Finnhub)
