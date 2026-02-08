@@ -2,9 +2,15 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../domain/entities/company_profile.dart';
+import '../../domain/entities/earnings.dart';
+import '../../domain/entities/earnings_calendar_entry.dart';
+import '../../domain/entities/news_article.dart';
 import '../../domain/entities/stock_quote.dart';
 import 'company_description.dart';
+import 'earnings_table.dart';
+import 'news_item.dart';
 import 'peer_list.dart';
+import 'sentiment_gauge.dart';
 
 /// Expanded view showing company profile and sentiment data.
 class SentimentExpandedView extends StatelessWidget {
@@ -13,11 +19,18 @@ class SentimentExpandedView extends StatelessWidget {
   final StockQuote? quote;
   final List<String>? peers;
   final bool peersExpanded;
+  final List<NewsArticle>? news;
+  final bool newsExpanded;
+  final int? expandedNewsIndex;
+  final List<Earnings>? earningsSurprises;
+  final List<EarningsCalendarEntry>? earningsCalendar;
   final bool isLoading;
   final String? error;
   final VoidCallback onClose;
   final VoidCallback onTogglePeers;
   final ValueChanged<String> onPeerTap;
+  final VoidCallback onToggleNews;
+  final ValueChanged<int> onToggleNewsItem;
 
   const SentimentExpandedView({
     super.key,
@@ -26,11 +39,18 @@ class SentimentExpandedView extends StatelessWidget {
     this.quote,
     this.peers,
     this.peersExpanded = false,
+    this.news,
+    this.newsExpanded = false,
+    this.expandedNewsIndex,
+    this.earningsSurprises,
+    this.earningsCalendar,
     this.isLoading = false,
     this.error,
     required this.onClose,
     required this.onTogglePeers,
     required this.onPeerTap,
+    required this.onToggleNews,
+    required this.onToggleNewsItem,
   });
 
   @override
@@ -115,7 +135,158 @@ class SentimentExpandedView extends StatelessWidget {
               onToggle: onTogglePeers,
               onPeerTap: onPeerTap,
             ),
+
+          const SizedBox(height: 24),
+
+          // Sentiment Analysis section
+          _buildSentimentSection(context),
+
+          const SizedBox(height: 24),
+
+          // Recent News section
+          _buildNewsSection(context),
+
+          const SizedBox(height: 24),
+
+          // Earnings section
+          EarningsSection(
+            earningsSurprises: earningsSurprises,
+            earningsCalendar: earningsCalendar,
+          ),
+
+          const SizedBox(height: 24),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSentimentSection(BuildContext context) {
+    final theme = Theme.of(context);
+
+    if (news == null || news!.isEmpty) {
+      return Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Sentiment Analysis',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'No recent news for $symbol',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Calculate average sentiment
+    final sum = news!.fold<double>(0, (acc, n) => acc + n.sentimentScore);
+    final avgSentiment = sum / news!.length;
+
+    return SentimentGauge(
+      score: avgSentiment,
+      articleCount: news!.length,
+    );
+  }
+
+  Widget _buildNewsSection(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header with toggle
+          InkWell(
+            onTap: onToggleNews,
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(12),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Recent News (Last 7 Days)',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  if (news != null && news!.isNotEmpty)
+                    Text(
+                      '${news!.length} article${news!.length == 1 ? '' : 's'}',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  const SizedBox(width: 8),
+                  AnimatedRotation(
+                    turns: newsExpanded ? 0.5 : 0,
+                    duration: const Duration(milliseconds: 200),
+                    child: Icon(
+                      Icons.keyboard_arrow_down,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // News list (animated)
+          AnimatedCrossFade(
+            firstChild: const SizedBox.shrink(),
+            secondChild: _buildNewsList(context),
+            crossFadeState:
+                newsExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+            duration: const Duration(milliseconds: 200),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNewsList(BuildContext context) {
+    final theme = Theme.of(context);
+
+    if (news == null || news!.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        child: Text(
+          'No recent news available',
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+            fontStyle: FontStyle.italic,
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      child: Column(
+        children: news!.asMap().entries.map((entry) {
+          final index = entry.key;
+          final article = entry.value;
+          return NewsItem(
+            news: article,
+            isExpanded: expandedNewsIndex == index,
+            onToggle: () => onToggleNewsItem(index),
+          );
+        }).toList(),
       ),
     );
   }

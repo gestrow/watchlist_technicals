@@ -72,3 +72,18 @@ final class SelectPeer extends SentimentEvent {
   @override
   List<Object?> get props => [peerSymbol];
 }
+
+/// Toggles the news section expansion state.
+final class ToggleNews extends SentimentEvent {
+  const ToggleNews();
+}
+
+/// Toggles a specific news item expansion.
+final class ToggleNewsItem extends SentimentEvent {
+  final int index;
+
+  const ToggleNewsItem(this.index);
+
+  @override
+  List<Object?> get props => [index];
+}

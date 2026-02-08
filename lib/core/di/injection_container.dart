@@ -83,6 +83,7 @@ void _initSentimentFeature() {
   sl.registerLazySingleton<SentimentRepository>(
     () => SentimentRepositoryImpl(
       finnhubApi: sl<FinnhubApi>(),
+      marketAuxApi: sl<MarketAuxApi>(),
     ),
   );
 }

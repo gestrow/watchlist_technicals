@@ -74,6 +74,11 @@ class _SentimentPageContentState extends State<_SentimentPageContent> {
               quote: state.quote,
               peers: state.peers,
               peersExpanded: state.peersExpanded,
+              news: state.news,
+              newsExpanded: state.newsExpanded,
+              expandedNewsIndex: state.expandedNewsIndex,
+              earningsSurprises: state.earningsSurprises,
+              earningsCalendar: state.earningsCalendar,
               isLoading: state.isLoading,
               error: state.error,
               onClose: () {
@@ -84,6 +89,12 @@ class _SentimentPageContentState extends State<_SentimentPageContent> {
               },
               onPeerTap: (peer) {
                 context.read<SentimentBloc>().add(SelectPeer(peer));
+              },
+              onToggleNews: () {
+                context.read<SentimentBloc>().add(const ToggleNews());
+              },
+              onToggleNewsItem: (index) {
+                context.read<SentimentBloc>().add(ToggleNewsItem(index));
               },
             );
           }
