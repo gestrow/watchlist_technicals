@@ -5,6 +5,7 @@ import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../features/sentiment/data/datasources/marketaux_api.dart';
+import '../services/av_call_tracker.dart';
 import '../services/connectivity_service.dart';
 import '../services/navigation_persistence_service.dart';
 import '../../features/sentiment/data/datasources/finnhub_api.dart';
@@ -14,6 +15,7 @@ import '../../features/settings/data/datasources/secure_storage_datasource.dart'
 import '../../features/settings/data/repositories/settings_repository_impl.dart';
 import '../../features/settings/domain/repositories/settings_repository.dart';
 import '../../features/settings/presentation/bloc/settings_bloc.dart';
+import '../../features/technicals/data/datasources/alpha_vantage_api.dart';
 import '../../features/technicals/data/datasources/yahoo_finance_api.dart';
 import '../../features/technicals/domain/calculators/sma_calculator.dart';
 import '../../features/technicals/domain/calculators/ema_calculator.dart';
@@ -23,6 +25,7 @@ import '../../features/technicals/domain/calculators/bollinger_bands_calculator.
 import '../../features/technicals/domain/calculators/vwap_calculator.dart';
 import '../../features/technicals/domain/calculators/dominant_cycle_calculator.dart';
 import '../../features/technicals/domain/usecases/calculate_technicals_usecase.dart';
+import '../../features/technicals/domain/usecases/fetch_fundamentals_usecase.dart';
 import '../../features/watchlist/data/models/watchlist_model.dart';
 import '../../features/watchlist/data/repositories/watchlist_repository_impl.dart';
 import '../../features/watchlist/domain/repositories/watchlist_repository.dart';
@@ -33,9 +36,6 @@ import '../constants/app_constants.dart';
 final sl = GetIt.instance;
 
 Future<void> init() async {
-  // Initialize Hive boxes (will be opened in main.dart after Hive.initFlutter())
-  // Boxes will be registered here after they are opened
-
   // Core - Dio HTTP Client
   sl.registerLazySingleton<Dio>(() {
     final dio = Dio(
@@ -88,27 +88,35 @@ void _initSettingsFeature() {
   );
 
   // BLoC - Factory so each page gets a fresh instance
-  sl.registerFactory<SettingsBloc>(
-    () => SettingsBloc(
-      repository: sl(),
-      dio: sl(),
-    ),
-  );
+  // Note: settingsBox registered later in registerHiveBoxes()
 }
 
 // Sentiment Feature - News & Sentiment Analysis (MarketAux + Finnhub)
 void _initSentimentFeature() {
-  // Data sources
+  // Data sources - each API gets its own Dio instance to avoid
+  // shared baseUrl/interceptor conflicts
   sl.registerLazySingleton<MarketAuxApi>(
     () => MarketAuxApi(
-      dio: sl(),
+      dio: Dio(
+        BaseOptions(
+          connectTimeout: ApiConstants.connectionTimeout,
+          receiveTimeout: ApiConstants.receiveTimeout,
+          headers: ApiConstants.jsonHeaders,
+        ),
+      ),
       secureStorage: sl(),
     ),
   );
 
   sl.registerLazySingleton<FinnhubApi>(
     () => FinnhubApi(
-      dio: sl(),
+      dio: Dio(
+        BaseOptions(
+          connectTimeout: ApiConstants.connectionTimeout,
+          receiveTimeout: ApiConstants.receiveTimeout,
+          headers: ApiConstants.jsonHeaders,
+        ),
+      ),
       secureStorage: sl(),
     ),
   );
@@ -128,6 +136,19 @@ void _initTechnicalsFeature() {
   sl.registerLazySingleton<YahooFinanceApi>(
     () => YahooFinanceApi(
       dio: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton<AlphaVantageApi>(
+    () => AlphaVantageApi(
+      dio: Dio(
+        BaseOptions(
+          connectTimeout: ApiConstants.connectionTimeout,
+          receiveTimeout: ApiConstants.receiveTimeout,
+          headers: ApiConstants.jsonHeaders,
+        ),
+      ),
+      secureStorage: sl(),
     ),
   );
 
@@ -182,11 +203,44 @@ Future<void> registerHiveBoxes() async {
     instanceName: AppConstants.cacheBoxName,
   );
 
-  // Register CalculateTechnicalsUsecase (needs cache box)
+  // Register settings box
+  sl.registerLazySingleton<Box>(
+    () => Hive.box(AppConstants.settingsBoxName),
+    instanceName: AppConstants.settingsBoxName,
+  );
+
+  // AV Call Tracker
+  sl.registerLazySingleton<AvCallTracker>(
+    () => AvCallTracker(
+      settingsBox: sl<Box>(instanceName: AppConstants.settingsBoxName),
+    ),
+  );
+
+  // Register CalculateTechnicalsUsecase (needs cache box + call tracker)
   sl.registerLazySingleton<CalculateTechnicalsUsecase>(
     () => CalculateTechnicalsUsecase(
       api: sl<YahooFinanceApi>(),
+      alphaVantageApi: sl<AlphaVantageApi>(),
       cacheBox: sl<Box>(instanceName: AppConstants.cacheBoxName),
+      callTracker: sl<AvCallTracker>(),
+    ),
+  );
+
+  // Register FetchFundamentalsUsecase
+  sl.registerLazySingleton<FetchFundamentalsUsecase>(
+    () => FetchFundamentalsUsecase(
+      alphaVantageApi: sl<AlphaVantageApi>(),
+      cacheBox: sl<Box>(instanceName: AppConstants.cacheBoxName),
+      callTracker: sl<AvCallTracker>(),
+    ),
+  );
+
+  // Register SettingsBloc (needs settings box)
+  sl.registerFactory<SettingsBloc>(
+    () => SettingsBloc(
+      repository: sl(),
+      dio: sl(),
+      settingsBox: sl<Box>(instanceName: AppConstants.settingsBoxName),
     ),
   );
 }

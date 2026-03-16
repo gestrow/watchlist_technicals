@@ -87,3 +87,18 @@ final class LoadTechnicals extends TechnicalsEvent {
 final class ClearTechnicalsError extends TechnicalsEvent {
   const ClearTechnicalsError();
 }
+
+/// Event to load fundamentals data for a symbol.
+final class LoadFundamentals extends TechnicalsEvent {
+  final String symbol;
+
+  const LoadFundamentals(this.symbol);
+
+  @override
+  List<Object?> get props => [symbol];
+}
+
+/// Event to sync AV mode setting from Hive into BLoC state.
+final class SyncAvMode extends TechnicalsEvent {
+  const SyncAvMode();
+}

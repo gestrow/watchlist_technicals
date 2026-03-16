@@ -17,6 +17,21 @@ class TechnicalsState extends Equatable {
   /// Error message from technical calculation.
   final String? technicalError;
 
+  /// Fundamentals data for the expanded symbol.
+  final FundamentalsResult? fundamentalsResult;
+
+  /// Whether fundamentals are being loaded.
+  final bool isLoadingFundamentals;
+
+  /// Error message from fundamentals fetch.
+  final String? fundamentalsError;
+
+  /// Whether Alpha Vantage server-side technicals mode is enabled.
+  final bool useAvForTechnicals;
+
+  /// Remaining Alpha Vantage API calls for today.
+  final int avCallsRemaining;
+
   const TechnicalsState({
     required this.availableWatchlists,
     required this.selectedWatchlist,
@@ -26,6 +41,11 @@ class TechnicalsState extends Equatable {
     this.technicalResult,
     this.isLoadingTechnicals = false,
     this.technicalError,
+    this.fundamentalsResult,
+    this.isLoadingFundamentals = false,
+    this.fundamentalsError,
+    this.useAvForTechnicals = false,
+    this.avCallsRemaining = 25,
   });
 
   /// Creates the initial state with default values.
@@ -36,10 +56,6 @@ class TechnicalsState extends Equatable {
       selectedWatchlist: null,
       selectedTimeframe: TimeframeConfig.intraday,
       selectedDate: DateTime(today.year, today.month, today.day),
-      expandedSymbol: null,
-      technicalResult: null,
-      isLoadingTechnicals: false,
-      technicalError: null,
     );
   }
 
@@ -73,6 +89,13 @@ class TechnicalsState extends Equatable {
     bool? isLoadingTechnicals,
     String? technicalError,
     bool clearTechnicalError = false,
+    FundamentalsResult? fundamentalsResult,
+    bool clearFundamentalsResult = false,
+    bool? isLoadingFundamentals,
+    String? fundamentalsError,
+    bool clearFundamentalsError = false,
+    bool? useAvForTechnicals,
+    int? avCallsRemaining,
   }) {
     return TechnicalsState(
       availableWatchlists: availableWatchlists ?? this.availableWatchlists,
@@ -87,6 +110,16 @@ class TechnicalsState extends Equatable {
       isLoadingTechnicals: isLoadingTechnicals ?? this.isLoadingTechnicals,
       technicalError:
           clearTechnicalError ? null : (technicalError ?? this.technicalError),
+      fundamentalsResult: clearFundamentalsResult
+          ? null
+          : (fundamentalsResult ?? this.fundamentalsResult),
+      isLoadingFundamentals:
+          isLoadingFundamentals ?? this.isLoadingFundamentals,
+      fundamentalsError: clearFundamentalsError
+          ? null
+          : (fundamentalsError ?? this.fundamentalsError),
+      useAvForTechnicals: useAvForTechnicals ?? this.useAvForTechnicals,
+      avCallsRemaining: avCallsRemaining ?? this.avCallsRemaining,
     );
   }
 
@@ -100,5 +133,10 @@ class TechnicalsState extends Equatable {
         technicalResult,
         isLoadingTechnicals,
         technicalError,
+        fundamentalsResult,
+        isLoadingFundamentals,
+        fundamentalsError,
+        useAvForTechnicals,
+        avCallsRemaining,
       ];
 }

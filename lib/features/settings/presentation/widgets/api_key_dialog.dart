@@ -21,11 +21,15 @@ class ApiKeyDialog extends StatefulWidget {
     required ApiProvider provider,
     required bool isConfigured,
   }) {
+    final settingsBloc = context.read<SettingsBloc>();
     return showDialog<bool>(
       context: context,
-      builder: (context) => ApiKeyDialog(
-        provider: provider,
-        isConfigured: isConfigured,
+      builder: (dialogContext) => BlocProvider.value(
+        value: settingsBloc,
+        child: ApiKeyDialog(
+          provider: provider,
+          isConfigured: isConfigured,
+        ),
       ),
     );
   }

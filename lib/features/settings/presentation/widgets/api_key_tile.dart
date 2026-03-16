@@ -63,6 +63,9 @@ class ApiKeyTile extends StatelessWidget {
       case ApiProvider.marketaux:
         icon = Icons.newspaper_outlined;
         color = Colors.purple;
+      case ApiProvider.alphaVantage:
+        icon = Icons.candlestick_chart_outlined;
+        color = Colors.teal;
     }
 
     return Container(

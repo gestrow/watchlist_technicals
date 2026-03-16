@@ -49,3 +49,13 @@ final class ClearApiKey extends SettingsEvent {
 final class ClearValidationState extends SettingsEvent {
   const ClearValidationState();
 }
+
+/// Toggle "Use Alpha Vantage for Technicals" setting
+final class ToggleAvForTechnicals extends SettingsEvent {
+  final bool enabled;
+
+  const ToggleAvForTechnicals({required this.enabled});
+
+  @override
+  List<Object?> get props => [enabled];
+}

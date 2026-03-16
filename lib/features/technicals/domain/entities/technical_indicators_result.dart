@@ -39,6 +39,9 @@ class TechnicalIndicatorsResult extends Equatable {
   /// Timestamp when this result was calculated.
   final DateTime calculatedAt;
 
+  /// Data source: 'yahoo_local' or 'alpha_vantage'.
+  final String dataSource;
+
   const TechnicalIndicatorsResult({
     required this.candles,
     required this.rsi,
@@ -51,6 +54,7 @@ class TechnicalIndicatorsResult extends Equatable {
     required this.symbol,
     required this.endDate,
     required this.calculatedAt,
+    this.dataSource = 'yahoo_local',
   });
 
   /// Returns true if there's enough data for reliable calculations.
@@ -100,5 +104,6 @@ class TechnicalIndicatorsResult extends Equatable {
         endDate,
         calculatedAt,
         candles.length,
+        dataSource,
       ];
 }

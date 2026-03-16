@@ -26,6 +26,7 @@ mixin _$CompanyProfileModel {
   String get description => throw _privateConstructorUsedError;
   @JsonKey(name: 'weburl')
   String? get webUrl => throw _privateConstructorUsedError;
+  @JsonKey(name: 'finnhubIndustry')
   String get industry => throw _privateConstructorUsedError;
   String get country => throw _privateConstructorUsedError;
 
@@ -47,7 +48,7 @@ abstract class $CompanyProfileModelCopyWith<$Res> {
       String logo,
       String description,
       @JsonKey(name: 'weburl') String? webUrl,
-      String industry,
+      @JsonKey(name: 'finnhubIndustry') String industry,
       String country});
 }
 
@@ -119,7 +120,7 @@ abstract class _$$CompanyProfileModelImplCopyWith<$Res>
       String logo,
       String description,
       @JsonKey(name: 'weburl') String? webUrl,
-      String industry,
+      @JsonKey(name: 'finnhubIndustry') String industry,
       String country});
 }
 
@@ -179,31 +180,37 @@ class __$$CompanyProfileModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$CompanyProfileModelImpl implements _CompanyProfileModel {
   const _$CompanyProfileModelImpl(
-      {required this.name,
-      required this.ticker,
-      required this.logo,
-      required this.description,
+      {this.name = '',
+      this.ticker = '',
+      this.logo = '',
+      this.description = '',
       @JsonKey(name: 'weburl') this.webUrl,
-      required this.industry,
-      required this.country});
+      @JsonKey(name: 'finnhubIndustry') this.industry = '',
+      this.country = ''});
 
   factory _$CompanyProfileModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$CompanyProfileModelImplFromJson(json);
 
   @override
+  @JsonKey()
   final String name;
   @override
+  @JsonKey()
   final String ticker;
   @override
+  @JsonKey()
   final String logo;
   @override
+  @JsonKey()
   final String description;
   @override
   @JsonKey(name: 'weburl')
   final String? webUrl;
   @override
+  @JsonKey(name: 'finnhubIndustry')
   final String industry;
   @override
+  @JsonKey()
   final String country;
 
   @override
@@ -249,13 +256,13 @@ class _$CompanyProfileModelImpl implements _CompanyProfileModel {
 
 abstract class _CompanyProfileModel implements CompanyProfileModel {
   const factory _CompanyProfileModel(
-      {required final String name,
-      required final String ticker,
-      required final String logo,
-      required final String description,
+      {final String name,
+      final String ticker,
+      final String logo,
+      final String description,
       @JsonKey(name: 'weburl') final String? webUrl,
-      required final String industry,
-      required final String country}) = _$CompanyProfileModelImpl;
+      @JsonKey(name: 'finnhubIndustry') final String industry,
+      final String country}) = _$CompanyProfileModelImpl;
 
   factory _CompanyProfileModel.fromJson(Map<String, dynamic> json) =
       _$CompanyProfileModelImpl.fromJson;
@@ -272,6 +279,7 @@ abstract class _CompanyProfileModel implements CompanyProfileModel {
   @JsonKey(name: 'weburl')
   String? get webUrl;
   @override
+  @JsonKey(name: 'finnhubIndustry')
   String get industry;
   @override
   String get country;

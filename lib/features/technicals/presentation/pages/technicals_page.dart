@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive/hive.dart';
 
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/services/av_call_tracker.dart';
 import '../../../watchlist/domain/entities/watchlist.dart';
 import '../../../watchlist/presentation/bloc/watchlist_bloc.dart';
 import '../../domain/entities/timeframe_config.dart';
 import '../../domain/usecases/calculate_technicals_usecase.dart';
+import '../../domain/usecases/fetch_fundamentals_usecase.dart';
 import '../bloc/technicals_bloc.dart';
 import '../widgets/custom_timeframe_dialog.dart';
 import '../widgets/date_selector.dart';
@@ -17,16 +21,31 @@ class TechnicalsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Try to get the usecase from DI, null if not registered
     CalculateTechnicalsUsecase? usecase;
+    FetchFundamentalsUsecase? fundamentalsUsecase;
+    AvCallTracker? avCallTracker;
+    Box? settingsBox;
+
     try {
       usecase = sl<CalculateTechnicalsUsecase>();
-    } catch (_) {
-      // Usecase not registered, will work without calculations
-    }
+    } catch (_) {}
+    try {
+      fundamentalsUsecase = sl<FetchFundamentalsUsecase>();
+    } catch (_) {}
+    try {
+      avCallTracker = sl<AvCallTracker>();
+    } catch (_) {}
+    try {
+      settingsBox = sl<Box>(instanceName: AppConstants.settingsBoxName);
+    } catch (_) {}
 
     return BlocProvider(
-      create: (_) => TechnicalsBloc(calculateTechnicalsUsecase: usecase),
+      create: (_) => TechnicalsBloc(
+        calculateTechnicalsUsecase: usecase,
+        fetchFundamentalsUsecase: fundamentalsUsecase,
+        avCallTracker: avCallTracker,
+        settingsBox: settingsBox,
+      ),
       child: const _TechnicalsPageContent(),
     );
   }
@@ -78,6 +97,11 @@ class _TechnicalsPageContentState extends State<_TechnicalsPageContent> {
               result: state.technicalResult,
               isLoading: state.isLoadingTechnicals,
               error: state.technicalError,
+              fundamentals: state.fundamentalsResult,
+              isLoadingFundamentals: state.isLoadingFundamentals,
+              fundamentalsError: state.fundamentalsError,
+              useAvForTechnicals: state.useAvForTechnicals,
+              avCallsRemaining: state.avCallsRemaining,
               onClose: () {
                 context.read<TechnicalsBloc>().add(const CollapseSymbol());
               },
@@ -148,6 +172,7 @@ class _TechnicalsPageContentState extends State<_TechnicalsPageContent> {
               DateSelector(
                 selectedDate: state.selectedDate,
                 isToday: state.isToday,
+                enabled: !state.useAvForTechnicals,
                 onBack: () {
                   context.read<TechnicalsBloc>().add(const NavigateDateBack());
                 },

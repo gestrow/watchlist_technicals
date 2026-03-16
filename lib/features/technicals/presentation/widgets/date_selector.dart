@@ -10,6 +10,7 @@ class DateSelector extends StatelessWidget {
   final bool isToday;
   final VoidCallback onBack;
   final VoidCallback onForward;
+  final bool enabled;
 
   const DateSelector({
     super.key,
@@ -17,6 +18,7 @@ class DateSelector extends StatelessWidget {
     required this.isToday,
     required this.onBack,
     required this.onForward,
+    this.enabled = true,
   });
 
   @override
@@ -35,7 +37,7 @@ class DateSelector extends StatelessWidget {
           // Left arrow - always visible
           IconButton(
             icon: const Icon(Icons.chevron_left),
-            onPressed: onBack,
+            onPressed: enabled ? onBack : null,
             tooltip: 'Previous day',
             visualDensity: VisualDensity.compact,
           ),
@@ -79,7 +81,7 @@ class DateSelector extends StatelessWidget {
                 ? const SizedBox(width: 8)
                 : IconButton(
                     icon: const Icon(Icons.chevron_right),
-                    onPressed: onForward,
+                    onPressed: enabled ? onForward : null,
                     tooltip: 'Next day',
                     visualDensity: VisualDensity.compact,
                   ),

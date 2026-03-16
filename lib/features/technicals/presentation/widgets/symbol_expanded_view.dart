@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../domain/entities/fundamentals_result.dart';
 import '../../domain/entities/technical_indicators_result.dart';
 import '../../domain/entities/timeframe_config.dart';
 import '../bloc/technicals_bloc.dart';
 import 'custom_timeframe_dialog.dart';
+import 'fundamentals_section.dart';
 import 'technical_chart.dart';
 
 /// Expanded view for a symbol showing full technical analysis.
@@ -17,6 +19,11 @@ class SymbolExpandedView extends StatelessWidget {
   final String? error;
   final VoidCallback onClose;
   final Function(TimeframeConfig) onTimeframeChanged;
+  final FundamentalsResult? fundamentals;
+  final bool isLoadingFundamentals;
+  final String? fundamentalsError;
+  final bool useAvForTechnicals;
+  final int avCallsRemaining;
 
   const SymbolExpandedView({
     super.key,
@@ -27,6 +34,11 @@ class SymbolExpandedView extends StatelessWidget {
     required this.error,
     required this.onClose,
     required this.onTimeframeChanged,
+    this.fundamentals,
+    this.isLoadingFundamentals = false,
+    this.fundamentalsError,
+    this.useAvForTechnicals = false,
+    this.avCallsRemaining = 25,
   });
 
   @override
@@ -53,6 +65,21 @@ class SymbolExpandedView extends StatelessWidget {
           ],
         ),
         actions: [
+          if (useAvForTechnicals)
+            Padding(
+              padding: const EdgeInsets.only(right: 4),
+              child: Chip(
+                avatar: Icon(Icons.cloud, size: 14,
+                    color: avCallsRemaining <= 5 ? Colors.red : Colors.green),
+                label: Text(
+                  '$avCallsRemaining/25',
+                  style: const TextStyle(fontSize: 11),
+                ),
+                visualDensity: VisualDensity.compact,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                padding: EdgeInsets.zero,
+              ),
+            ),
           if (result != null)
             IconButton(
               icon: const Icon(Icons.refresh),
@@ -205,9 +232,62 @@ class SymbolExpandedView extends StatelessWidget {
 
           // Indicator cards
           _buildIndicatorCards(context, theme),
+
+          // Fundamentals section
+          const SizedBox(height: 16),
+          _buildFundamentalsArea(context, theme),
         ],
       ),
     );
+  }
+
+  Widget _buildFundamentalsArea(BuildContext context, ThemeData theme) {
+    if (isLoadingFundamentals) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 24),
+        child: Center(
+          child: Column(
+            children: [
+              SizedBox(height: 8, width: 8, child: CircularProgressIndicator(strokeWidth: 2)),
+              SizedBox(height: 8),
+              Text('Loading fundamentals...', style: TextStyle(fontSize: 12)),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (fundamentalsError != null) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Icon(Icons.info_outline, size: 20,
+                    color: theme.colorScheme.onSurfaceVariant),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Fundamentals unavailable',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (fundamentals != null) {
+      return FundamentalsSection(result: fundamentals!);
+    }
+
+    return const SizedBox.shrink();
   }
 
   Widget _buildIndicatorCards(BuildContext context, ThemeData theme) {

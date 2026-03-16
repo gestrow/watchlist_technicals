@@ -29,6 +29,10 @@ class ApiConstants {
   static const String yahooFinanceBaseUrl = 'https://query2.finance.yahoo.com';
   static const String yahooFinanceChartEndpoint = '/v8/finance/chart';
 
+  // Alpha Vantage API (Daily & Intraday OHLCV, 25 calls/day free)
+  static const String alphaVantageBaseUrl = 'https://www.alphavantage.co';
+  static const String alphaVantageQuery = '/query';
+
   // Twelve Data API (100+ technical indicators, 800/day free, $29/mo for Grow plan)
   static const String twelveDataBaseUrl = 'https://api.twelvedata.com';
   static const String twelveDataApiKey = ''; // TODO: Add your Twelve Data API key
@@ -45,6 +49,7 @@ class ApiConstants {
   static const int finnhubRateLimitPerMinute = 60;
   static const int marketAuxRateLimitPerDay = 100; // Free tier
   static const int twelveDataRateLimitPerDay = 800; // Free tier
+  static const int alphaVantageRateLimitPerDay = 25; // Free tier
 
   // Headers
   static const Map<String, String> jsonHeaders = {

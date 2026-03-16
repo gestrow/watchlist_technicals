@@ -116,6 +116,13 @@ class AppConstants {
   static const String cacheBoxName = 'cache';
   static const String searchHistoryBoxName = 'search_history';
 
+  // Alpha Vantage Settings Keys (stored in settingsBoxName)
+  static const String avModeKey = 'use_av_for_technicals';
+  static const String avCallCountKey = 'av_call_count';
+  static const String avCallDateKey = 'av_call_date';
+  static const int avDailyCallLimit = 25;
+  static const Duration fundamentalsCacheTtl = Duration(hours: 24);
+
   // Feature Flags
   static const bool enableWebSocket = true;
   static const bool enableAdvancedCharts = true;

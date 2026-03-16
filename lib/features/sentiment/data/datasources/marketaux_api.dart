@@ -114,8 +114,8 @@ class MarketAuxApi {
         ApiConstants.marketAuxNews,
         queryParameters: {
           'symbols': symbol,
-          'published_after': from.toIso8601String(),
-          'published_before': to.toIso8601String(),
+          'published_after': from.toUtc().toIso8601String().split('.').first,
+          'published_before': to.toUtc().toIso8601String().split('.').first,
           'countries': 'us',
           'entity_types': 'equity',
           'limit': limit.toString(),

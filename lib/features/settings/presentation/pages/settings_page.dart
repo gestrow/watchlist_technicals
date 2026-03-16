@@ -90,6 +90,40 @@ class _SettingsPageContent extends StatelessWidget {
                 ),
               ),
 
+              // Alpha Vantage API Key
+              ApiKeyTile(
+                provider: ApiProvider.alphaVantage,
+                configured: state.alphaVantageConfigured,
+                onConfigure: () => _showApiKeyDialog(
+                  context,
+                  ApiProvider.alphaVantage,
+                  state.alphaVantageConfigured,
+                ),
+              ),
+
+              // Alpha Vantage Technicals Toggle
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: SwitchListTile(
+                  title: const Text('Use Alpha Vantage for Technicals'),
+                  subtitle: const Text(
+                    'Server-side RSI, EMA, MACD, Bollinger (uses API calls)',
+                  ),
+                  value: state.useAvForTechnicals,
+                  onChanged: state.alphaVantageConfigured
+                      ? (value) {
+                          context
+                              .read<SettingsBloc>()
+                              .add(ToggleAvForTechnicals(enabled: value));
+                        }
+                      : null,
+                  secondary: Icon(
+                    Icons.cloud_outlined,
+                    color: state.alphaVantageConfigured ? null : Colors.grey,
+                  ),
+                ),
+              ),
+
               const SizedBox(height: 16),
 
               // Configuration status summary
@@ -243,7 +277,7 @@ class _SettingsPageContent extends StatelessWidget {
         ListTile(
           leading: const Icon(Icons.info_outline),
           title: const Text('Data Sources'),
-          subtitle: const Text('Finnhub, MarketAux, Yahoo Finance'),
+          subtitle: const Text('Finnhub, MarketAux, Yahoo Finance, Alpha Vantage'),
           onTap: () {
             // Could show a dialog with more details
           },

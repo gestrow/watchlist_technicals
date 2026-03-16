@@ -1,8 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive/hive.dart';
 
 import '../../../../core/constants/api_constants.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../domain/entities/api_provider.dart';
 import '../../domain/repositories/settings_repository.dart';
 
@@ -15,18 +17,22 @@ part 'settings_state.dart';
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   final SettingsRepository _repository;
   final Dio _dio;
+  final Box _settingsBox;
 
   SettingsBloc({
     required SettingsRepository repository,
     required Dio dio,
+    required Box settingsBox,
   })  : _repository = repository,
         _dio = dio,
+        _settingsBox = settingsBox,
         super(const SettingsState()) {
     on<LoadSettings>(_onLoadSettings);
     on<SaveApiKey>(_onSaveApiKey);
     on<ValidateApiKey>(_onValidateApiKey);
     on<ClearApiKey>(_onClearApiKey);
     on<ClearValidationState>(_onClearValidationState);
+    on<ToggleAvForTechnicals>(_onToggleAvForTechnicals);
   }
 
   Future<void> _onLoadSettings(
@@ -37,10 +43,14 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
 
     try {
       final status = await _repository.getConfigurationStatus();
+      final avMode =
+          _settingsBox.get(AppConstants.avModeKey, defaultValue: false) as bool;
       emit(state.copyWith(
         isLoading: false,
         finnhubConfigured: status[ApiProvider.finnhub] ?? false,
         marketauxConfigured: status[ApiProvider.marketaux] ?? false,
+        alphaVantageConfigured: status[ApiProvider.alphaVantage] ?? false,
+        useAvForTechnicals: avMode,
       ));
     } catch (e) {
       emit(state.copyWith(
@@ -63,6 +73,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           emit(state.copyWith(finnhubConfigured: true, clearValidation: true));
         case ApiProvider.marketaux:
           emit(state.copyWith(marketauxConfigured: true, clearValidation: true));
+        case ApiProvider.alphaVantage:
+          emit(state.copyWith(alphaVantageConfigured: true, clearValidation: true));
       }
     } catch (e) {
       emit(state.copyWith(
@@ -115,6 +127,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           emit(state.copyWith(finnhubConfigured: false));
         case ApiProvider.marketaux:
           emit(state.copyWith(marketauxConfigured: false));
+        case ApiProvider.alphaVantage:
+          emit(state.copyWith(alphaVantageConfigured: false));
       }
     } catch (e) {
       emit(state.copyWith(
@@ -130,6 +144,14 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     emit(state.copyWith(clearValidation: true));
   }
 
+  Future<void> _onToggleAvForTechnicals(
+    ToggleAvForTechnicals event,
+    Emitter<SettingsState> emit,
+  ) async {
+    await _settingsBox.put(AppConstants.avModeKey, event.enabled);
+    emit(state.copyWith(useAvForTechnicals: event.enabled));
+  }
+
   /// Validate an API key by making a test request
   Future<bool> _validateKey(ApiProvider provider, String apiKey) async {
     switch (provider) {
@@ -137,6 +159,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         return _validateFinnhubKey(apiKey);
       case ApiProvider.marketaux:
         return _validateMarketAuxKey(apiKey);
+      case ApiProvider.alphaVantage:
+        return _validateAlphaVantageKey(apiKey);
     }
   }
 
@@ -155,6 +179,27 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       final data = response.data as Map<String, dynamic>;
       // Valid response has a current price > 0
       return data['c'] != null && data['c'] > 0;
+    }
+    return false;
+  }
+
+  /// Test Alpha Vantage API key with a quote request
+  Future<bool> _validateAlphaVantageKey(String apiKey) async {
+    final response = await _dio.get(
+      '${ApiConstants.alphaVantageBaseUrl}${ApiConstants.alphaVantageQuery}',
+      queryParameters: {
+        'function': 'TIME_SERIES_DAILY',
+        'symbol': 'AAPL',
+        'outputsize': 'compact',
+        'apikey': apiKey,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = response.data as Map<String, dynamic>;
+      // Invalid key returns {"Error Message": "..."}
+      // Rate limit returns {"Note": "..."}
+      return data.containsKey('Time Series (Daily)');
     }
     return false;
   }

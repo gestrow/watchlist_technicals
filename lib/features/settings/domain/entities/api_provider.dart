@@ -1,7 +1,8 @@
 /// Enum representing supported API providers
 enum ApiProvider {
   finnhub('Finnhub', 'finnhub_api_key'),
-  marketaux('MarketAux', 'marketaux_api_key');
+  marketaux('MarketAux', 'marketaux_api_key'),
+  alphaVantage('Alpha Vantage', 'alpha_vantage_api_key');
 
   final String displayName;
   final String storageKey;
@@ -15,6 +16,8 @@ enum ApiProvider {
         return 'https://finnhub.io/register';
       case ApiProvider.marketaux:
         return 'https://www.marketaux.com/register';
+      case ApiProvider.alphaVantage:
+        return 'https://www.alphavantage.co/support/#api-key';
     }
   }
 
@@ -25,6 +28,8 @@ enum ApiProvider {
         return 'https://finnhub.io/docs/api';
       case ApiProvider.marketaux:
         return 'https://www.marketaux.com/documentation';
+      case ApiProvider.alphaVantage:
+        return 'https://www.alphavantage.co/documentation/';
     }
   }
 
@@ -35,6 +40,8 @@ enum ApiProvider {
         return 'Stock fundamentals, earnings, and company data';
       case ApiProvider.marketaux:
         return 'News articles with sentiment analysis';
+      case ApiProvider.alphaVantage:
+        return 'Daily & intraday OHLCV data (fallback for technicals)';
     }
   }
 
@@ -45,6 +52,8 @@ enum ApiProvider {
         return '60 calls/minute (Free tier)';
       case ApiProvider.marketaux:
         return '2500 calls/day (Basic plan)';
+      case ApiProvider.alphaVantage:
+        return '25 calls/day (Free tier)';
     }
   }
 }

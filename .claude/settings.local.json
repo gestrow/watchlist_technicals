@@ -10,7 +10,15 @@
       "Bash(tree:*)",
       "Bash(dir:*)",
       "Bash(findstr:*)",
-      "Bash(flutter build:*)"
+      "Bash(flutter build:*)",
+      "Read(//Users/kacper/development/flutter/bin/**)",
+      "Read(//Users/kacper/flutter/bin/**)",
+      "Read(//opt/**)",
+      "Bash(/Users/kacper/SDK/apk-dev/flutter/bin/flutter build:*)",
+      "Bash(grep -E \"\\\\.dart$\")",
+      "Bash(grep \"\\\\.dart$\")",
+      "Bash(chmod +x /Users/kacper/SDK/apk-dev/watchlist_technicals/run_dev.sh)",
+      "mcp__plugin_context7_context7__query-docs"
     ]
   }
 }

@@ -9,13 +9,13 @@ part of 'company_profile_model.dart';
 _$CompanyProfileModelImpl _$$CompanyProfileModelImplFromJson(
         Map<String, dynamic> json) =>
     _$CompanyProfileModelImpl(
-      name: json['name'] as String,
-      ticker: json['ticker'] as String,
-      logo: json['logo'] as String,
-      description: json['description'] as String,
+      name: json['name'] as String? ?? '',
+      ticker: json['ticker'] as String? ?? '',
+      logo: json['logo'] as String? ?? '',
+      description: json['description'] as String? ?? '',
       webUrl: json['weburl'] as String?,
-      industry: json['industry'] as String,
-      country: json['country'] as String,
+      industry: json['finnhubIndustry'] as String? ?? '',
+      country: json['country'] as String? ?? '',
     );
 
 Map<String, dynamic> _$$CompanyProfileModelImplToJson(
@@ -26,6 +26,6 @@ Map<String, dynamic> _$$CompanyProfileModelImplToJson(
       'logo': instance.logo,
       'description': instance.description,
       'weburl': instance.webUrl,
-      'industry': instance.industry,
+      'finnhubIndustry': instance.industry,
       'country': instance.country,
     };

@@ -8,13 +8,13 @@ part 'company_profile_model.g.dart';
 @freezed
 class CompanyProfileModel with _$CompanyProfileModel {
   const factory CompanyProfileModel({
-    required String name,
-    required String ticker,
-    required String logo,
-    required String description,
+    @Default('') String name,
+    @Default('') String ticker,
+    @Default('') String logo,
+    @Default('') String description,
     @JsonKey(name: 'weburl') String? webUrl,
-    required String industry,
-    required String country,
+    @JsonKey(name: 'finnhubIndustry') @Default('') String industry,
+    @Default('') String country,
   }) = _CompanyProfileModel;
 
   factory CompanyProfileModel.fromJson(Map<String, dynamic> json) =>
