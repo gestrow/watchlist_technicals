@@ -144,7 +144,7 @@ class TechnicalsBloc extends Bloc<TechnicalsEvent, TechnicalsState> {
       add(LoadTechnicals(event.symbol));
     }
 
-    // Load fundamentals if AV is configured
+    // Load fundamentals whenever the use case is available (requires AV key)
     if (_fetchFundamentalsUsecase != null) {
       add(LoadFundamentals(event.symbol));
     }
@@ -283,8 +283,14 @@ class TechnicalsBloc extends Bloc<TechnicalsEvent, TechnicalsState> {
         ));
       }
     } catch (e) {
+      final msg = e.toString();
+      // Silently skip when no AV key is configured — show nothing, not an error.
+      if (msg.contains('not configured')) {
+        emit(state.copyWith(isLoadingFundamentals: false));
+        return;
+      }
       emit(state.copyWith(
-        fundamentalsError: e.toString(),
+        fundamentalsError: msg,
         isLoadingFundamentals: false,
       ));
     }

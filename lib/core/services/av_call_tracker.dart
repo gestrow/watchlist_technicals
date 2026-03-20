@@ -1,11 +1,22 @@
+import 'dart:async';
+
 import 'package:hive/hive.dart';
 
 import '../constants/app_constants.dart';
 
 /// Tracks daily Alpha Vantage API call usage against the 25/day free tier limit.
 /// Persists count in Hive settings box so it survives app restarts within the same day.
+///
+/// Also enforces free-tier rate limiting (5 req/min) by serializing calls with
+/// a minimum 13-second gap when [isFreeTier] is true.
 class AvCallTracker {
   final Box _settingsBox;
+
+  /// Serialized rate-limit queue — each caller chains onto the previous.
+  Future<void>? _rateLimitQueue;
+
+  /// Timestamp of when the last rate-limited call was allowed to proceed.
+  DateTime? _lastCallTime;
 
   AvCallTracker({required Box settingsBox}) : _settingsBox = settingsBox;
 
@@ -44,6 +55,41 @@ class AvCallTracker {
           (_settingsBox.get(AppConstants.avCallCountKey) as int?) ?? 0;
       _settingsBox.put(AppConstants.avCallCountKey, current + count);
     }
+  }
+
+  /// Whether the user is on the free tier (default true).
+  /// Free tier: 5 API calls/minute → 13 s minimum gap between calls.
+  bool get isFreeTier =>
+      (_settingsBox.get(AppConstants.avFreeTierKey, defaultValue: true) as bool?) ??
+      true;
+
+  /// Waits if necessary to stay within the AV free-tier rate limit (5 req/min).
+  ///
+  /// Calls are serialized: each invocation queues behind the previous one so
+  /// that concurrent callers (technicals + fundamentals) never burst.
+  Future<void> throttleIfNeeded() async {
+    if (!isFreeTier) return;
+
+    // Capture and replace the queue atomically (Dart is single-threaded).
+    final prev = _rateLimitQueue;
+    final completer = Completer<void>();
+    _rateLimitQueue = completer.future;
+
+    // Wait for the previous call's slot to finish.
+    if (prev != null) await prev;
+
+    // Now enforce the minimum interval since the last allowed call.
+    final lastCall = _lastCallTime;
+    if (lastCall != null) {
+      const minInterval = Duration(milliseconds: AppConstants.avFreeMinIntervalMs);
+      final elapsed = DateTime.now().difference(lastCall);
+      if (elapsed < minInterval) {
+        await Future.delayed(minInterval - elapsed);
+      }
+    }
+
+    _lastCallTime = DateTime.now();
+    completer.complete();
   }
 
   /// Called on app boot — resets counter if stored date is not today.

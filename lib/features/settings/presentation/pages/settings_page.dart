@@ -101,28 +101,8 @@ class _SettingsPageContent extends StatelessWidget {
                 ),
               ),
 
-              // Alpha Vantage Technicals Toggle
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: SwitchListTile(
-                  title: const Text('Use Alpha Vantage for Technicals'),
-                  subtitle: const Text(
-                    'Server-side RSI, EMA, MACD, Bollinger (uses API calls)',
-                  ),
-                  value: state.useAvForTechnicals,
-                  onChanged: state.alphaVantageConfigured
-                      ? (value) {
-                          context
-                              .read<SettingsBloc>()
-                              .add(ToggleAvForTechnicals(enabled: value));
-                        }
-                      : null,
-                  secondary: Icon(
-                    Icons.cloud_outlined,
-                    color: state.alphaVantageConfigured ? null : Colors.grey,
-                  ),
-                ),
-              ),
+              // AV technicals toggle and premium tier toggle are exposed
+              // inside the Alpha Vantage key dialog, not here.
 
               const SizedBox(height: 16),
 

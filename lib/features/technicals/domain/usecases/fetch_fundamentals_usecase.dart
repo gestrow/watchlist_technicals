@@ -38,14 +38,17 @@ class FetchFundamentalsUsecase {
     }
 
     // Fetch company overview
+    await _callTracker.throttleIfNeeded();
     final overviewData = await _api.getCompanyOverview(symbol);
     _callTracker.recordCalls(1);
 
     // Fetch earnings
+    await _callTracker.throttleIfNeeded();
     final earningsData = await _api.getEarnings(symbol);
     _callTracker.recordCalls(1);
 
     // Fetch income statement
+    await _callTracker.throttleIfNeeded();
     final incomeData = await _api.getIncomeStatement(symbol);
     _callTracker.recordCalls(1);
 

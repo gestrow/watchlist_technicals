@@ -19,6 +19,8 @@ class SettingsState extends Equatable {
   final ApiProvider? validatingProvider;
   final String? error;
   final bool useAvForTechnicals;
+  /// True when the user has a paid Alpha Vantage plan (disables rate limiting).
+  final bool avPremiumTier;
 
   const SettingsState({
     this.isLoading = false,
@@ -30,6 +32,7 @@ class SettingsState extends Equatable {
     this.validatingProvider,
     this.error,
     this.useAvForTechnicals = false,
+    this.avPremiumTier = false,
   });
 
   /// Check if a specific provider is configured
@@ -66,6 +69,7 @@ class SettingsState extends Equatable {
     bool clearError = false,
     bool clearValidation = false,
     bool? useAvForTechnicals,
+    bool? avPremiumTier,
   }) {
     return SettingsState(
       isLoading: isLoading ?? this.isLoading,
@@ -82,6 +86,7 @@ class SettingsState extends Equatable {
           clearValidation ? null : (validatingProvider ?? this.validatingProvider),
       error: clearError ? null : (error ?? this.error),
       useAvForTechnicals: useAvForTechnicals ?? this.useAvForTechnicals,
+      avPremiumTier: avPremiumTier ?? this.avPremiumTier,
     );
   }
 
@@ -96,5 +101,6 @@ class SettingsState extends Equatable {
         validatingProvider,
         error,
         useAvForTechnicals,
+        avPremiumTier,
       ];
 }

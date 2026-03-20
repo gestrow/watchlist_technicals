@@ -59,3 +59,14 @@ final class ToggleAvForTechnicals extends SettingsEvent {
   @override
   List<Object?> get props => [enabled];
 }
+
+/// Toggle between free and premium Alpha Vantage tier.
+/// Premium tier removes per-minute rate limiting.
+final class ToggleAvPremiumTier extends SettingsEvent {
+  final bool isPremium;
+
+  const ToggleAvPremiumTier({required this.isPremium});
+
+  @override
+  List<Object?> get props => [isPremium];
+}

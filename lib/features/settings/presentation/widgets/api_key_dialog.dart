@@ -168,6 +168,26 @@ class _ApiKeyDialogState extends State<ApiKeyDialog> {
 
                 const SizedBox(height: 12),
 
+                // Premium tier toggle — only for Alpha Vantage
+                if (widget.provider == ApiProvider.alphaVantage) ...[
+                  const SizedBox(height: 4),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Premium API Tier'),
+                    subtitle: Text(
+                      state.avPremiumTier
+                          ? 'Rate limiting disabled (paid plan)'
+                          : 'Free tier: calls spaced 13 s apart (5/min)',
+                      style: theme.textTheme.bodySmall,
+                    ),
+                    value: state.avPremiumTier,
+                    onChanged: (value) => context
+                        .read<SettingsBloc>()
+                        .add(ToggleAvPremiumTier(isPremium: value)),
+                    secondary: const Icon(Icons.speed_outlined, size: 20),
+                  ),
+                ],
+
                 // Get API Key link
                 TextButton.icon(
                   icon: const Icon(Icons.open_in_new, size: 18),

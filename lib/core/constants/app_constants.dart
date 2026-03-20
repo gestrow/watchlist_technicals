@@ -120,7 +120,10 @@ class AppConstants {
   static const String avModeKey = 'use_av_for_technicals';
   static const String avCallCountKey = 'av_call_count';
   static const String avCallDateKey = 'av_call_date';
+  static const String avFreeTierKey = 'av_free_tier';
   static const int avDailyCallLimit = 25;
+  /// Minimum ms between consecutive AV calls on the free tier (5 req/min = 12s).
+  static const int avFreeMinIntervalMs = 13000;
   static const Duration fundamentalsCacheTtl = Duration(hours: 24);
 
   // Feature Flags

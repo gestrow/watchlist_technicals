@@ -33,6 +33,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     on<ClearApiKey>(_onClearApiKey);
     on<ClearValidationState>(_onClearValidationState);
     on<ToggleAvForTechnicals>(_onToggleAvForTechnicals);
+    on<ToggleAvPremiumTier>(_onToggleAvPremiumTier);
   }
 
   Future<void> _onLoadSettings(
@@ -45,12 +46,15 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       final status = await _repository.getConfigurationStatus();
       final avMode =
           _settingsBox.get(AppConstants.avModeKey, defaultValue: false) as bool;
+      final avPremium =
+          !(_settingsBox.get(AppConstants.avFreeTierKey, defaultValue: true) as bool);
       emit(state.copyWith(
         isLoading: false,
         finnhubConfigured: status[ApiProvider.finnhub] ?? false,
         marketauxConfigured: status[ApiProvider.marketaux] ?? false,
         alphaVantageConfigured: status[ApiProvider.alphaVantage] ?? false,
         useAvForTechnicals: avMode,
+        avPremiumTier: avPremium,
       ));
     } catch (e) {
       emit(state.copyWith(
@@ -150,6 +154,15 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   ) async {
     await _settingsBox.put(AppConstants.avModeKey, event.enabled);
     emit(state.copyWith(useAvForTechnicals: event.enabled));
+  }
+
+  Future<void> _onToggleAvPremiumTier(
+    ToggleAvPremiumTier event,
+    Emitter<SettingsState> emit,
+  ) async {
+    // avFreeTierKey stores true = free tier; premium = NOT free tier
+    await _settingsBox.put(AppConstants.avFreeTierKey, !event.isPremium);
+    emit(state.copyWith(avPremiumTier: event.isPremium));
   }
 
   /// Validate an API key by making a test request

@@ -136,6 +136,7 @@ class CalculateTechnicalsUsecase {
     if (cachedDaily != null) {
       avCandles = cachedDaily;
     } else {
+      await _callTracker.throttleIfNeeded();
       avCandles = await _alphaVantageApi.getDailyData(upperSymbol);
       _callTracker.recordCalls(1);
       _cacheAvList(dailyCacheKey, avCandles);
@@ -166,6 +167,7 @@ class CalculateTechnicalsUsecase {
     final rsiKey = '${upperSymbol}_av_RSI_${config.rsiPeriod}';
     var rsiMap = _getAvCachedMap(rsiKey, today);
     if (rsiMap == null) {
+      await _callTracker.throttleIfNeeded();
       rsiMap = await _alphaVantageApi.getRSI(
         upperSymbol,
         timePeriod: config.rsiPeriod,
@@ -182,6 +184,7 @@ class CalculateTechnicalsUsecase {
       final emaKey = '${upperSymbol}_av_EMA_$period';
       var emaMap = _getAvCachedMap(emaKey, today);
       if (emaMap == null) {
+        await _callTracker.throttleIfNeeded();
         emaMap = await _alphaVantageApi.getEMA(
           upperSymbol,
           timePeriod: period,
@@ -201,6 +204,7 @@ class CalculateTechnicalsUsecase {
         '${upperSymbol}_av_MACD_${config.macdFast}_${config.macdSlow}_${config.macdSignal}';
     var macdMap = _getAvCachedMultiMap(macdKey, today);
     if (macdMap == null) {
+      await _callTracker.throttleIfNeeded();
       macdMap = await _alphaVantageApi.getMACD(
         upperSymbol,
         fastPeriod: config.macdFast,
@@ -227,6 +231,7 @@ class CalculateTechnicalsUsecase {
         '${upperSymbol}_av_BBANDS_${config.bollingerPeriod}_${config.bollingerStdDev}';
     var bbMap = _getAvCachedMultiMap(bbKey, today);
     if (bbMap == null) {
+      await _callTracker.throttleIfNeeded();
       bbMap = await _alphaVantageApi.getBBands(
         upperSymbol,
         timePeriod: config.bollingerPeriod,
@@ -407,7 +412,8 @@ class CalculateTechnicalsUsecase {
       return cached;
     }
 
-    // Try Yahoo Finance first
+    // Yahoo Finance is the sole source for technicals OHLCV data.
+    // Alpha Vantage is reserved for fundamentals only.
     try {
       final candles = await _api.getHistoricalData(
         symbol,
@@ -420,29 +426,7 @@ class CalculateTechnicalsUsecase {
       return candles;
     } catch (yahooError) {
       print('[Technicals] Yahoo Finance failed for $symbol: $yahooError');
-
-      // Fall back to Alpha Vantage if configured
-      if (await _alphaVantageApi.isConfigured) {
-        print('[Technicals] Falling back to Alpha Vantage for $symbol');
-        try {
-          final candles = await _alphaVantageApi.getHistoricalData(
-            symbol,
-            startDate,
-            endDate,
-            '1d',
-          );
-
-          _cacheData(cacheKey, candles);
-          return candles;
-        } catch (avError) {
-          print('[Technicals] Alpha Vantage also failed: $avError');
-          // Throw the original Yahoo error as it's the primary source
-          rethrow;
-        }
-      }
-
-      // No fallback available, rethrow Yahoo error
-      throw yahooError;
+      rethrow;
     }
   }
 

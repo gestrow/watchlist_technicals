@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../domain/entities/fundamentals_result.dart';
+import 'expandable_text.dart';
 
 class FundamentalsSection extends StatelessWidget {
   final FundamentalsResult result;
@@ -74,13 +75,12 @@ class FundamentalsSection extends StatelessWidget {
             if (overview.description.isNotEmpty &&
                 overview.description != 'None') ...[
               const SizedBox(height: 12),
-              Text(
-                overview.description,
+              ExpandableText(
+                text: overview.description,
+                maxLines: 3,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
               ),
             ],
           ],
