@@ -1,6 +1,11 @@
 # Watchlist Technicals
 
-A Flutter app for tracking stock technical indicators and sentiment analysis.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Latest Release](https://img.shields.io/github/v/release/gestrow/watchlist_technicals)](https://github.com/gestrow/watchlist_technicals/releases/latest)
+[![Flutter](https://img.shields.io/badge/Flutter-3.10%2B-02569B?logo=flutter&logoColor=white)](https://flutter.dev)
+[![Platform](https://img.shields.io/badge/platform-Android-3DDC84?logo=android&logoColor=white)](https://github.com/gestrow/watchlist_technicals/releases/latest)
+
+A cross-platform Flutter app for tracking stock **technical indicators** and **market sentiment**. Build custom watchlists, then dive into any stock to see professionally calculated indicators — RSI, MACD, EMA/SMA, Bollinger Bands, VWAP, and a Hilbert-Transform dominant-cycle estimator — rendered on interactive charts, alongside news sentiment, company profiles, and earnings.
 
 ## Features
 
@@ -18,11 +23,17 @@ A Flutter app for tracking stock technical indicators and sentiment analysis.
 - **Dark Mode** - Full dark theme support
 - **Pull-to-Refresh** - Refresh data on all list views
 
-## Screenshots
+## Download
 
-[Add screenshots here]
+Grab the latest signed Android APK from the [**Releases**](https://github.com/gestrow/watchlist_technicals/releases/latest) page.
 
-## Setup
+1. Download `watchlist-technicals-vX.Y.Z.apk` from the latest release.
+2. On your device, enable **Install from unknown sources** for your browser or file manager.
+3. Open the downloaded APK to install.
+
+> **Note:** The app uses free third-party data APIs. You'll need your own keys from Finnhub and MarketAux — add them in the app's **Settings** screen (see [API Keys](#api-keys) below).
+
+## Development Setup
 
 ### Prerequisites
 
@@ -34,7 +45,7 @@ A Flutter app for tracking stock technical indicators and sentiment analysis.
 
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/gestrow/watchlist_technicals.git
    cd watchlist_technicals
    ```
 
@@ -169,14 +180,13 @@ flutter build ios --release
 dart run flutter_native_splash:create
 ```
 
-### Generate App Icons
+### Regenerate App Icons
 
-1. Add `assets/app_icon.png` (1024x1024 recommended)
-2. Uncomment `flutter_launcher_icons` section in `pubspec.yaml`
-3. Run:
-   ```bash
-   dart run flutter_launcher_icons
-   ```
+Icons are configured via `flutter_launcher_icons` in `pubspec.yaml` (source: `assets/app_icon.png`, 1024×1024). To regenerate after changing the icon:
+
+```bash
+dart run flutter_launcher_icons
+```
 
 ## Dependencies
 
